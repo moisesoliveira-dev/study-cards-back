@@ -14,31 +14,51 @@ enum CardStatus {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
+  id           String      @id @default(cuid())
+  email        String      @unique
   passwordHash String
   name         String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   subjects     Subject[]
+  flows        FlowBoard[]
 
   @@index([email])
 }
 
 model Subject {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   userId      String
   name        String
   description String?
-  color       String   @default("#BA7517")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  color       String      @default("#BA7517")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   topics      Topic[]
   cards       Card[]
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flows       FlowBoard[]
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([name])
   @@index([userId])
+}
+
+model FlowBoard {
+  id        String   @id @default(cuid())
+  userId    String
+  subjectId String
+  name      String
+  nodes     Json     @default("[]")
+  edges     Json     @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([subjectId])
+  @@index([userId, subjectId])
 }
 
 model Topic {

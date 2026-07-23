@@ -55,6 +55,7 @@ export class CardController {
     @Query('topicId') topicId?: string,
     @Query('subjectId') subjectId?: string,
     @Query('ids') ids?: string,
+    @Query('all') all?: string,
   ) {
     if (ids?.trim()) {
       const list = await this.getCardsByIds.execute(
@@ -63,7 +64,11 @@ export class CardController {
       );
       return list.map((c) => this.toResponse(c));
     }
-    const cards = await this.listCards.execute(user.id, { topicId, subjectId });
+    const cards = await this.listCards.execute(user.id, {
+      topicId,
+      subjectId,
+      all: all === '1' || all === 'true',
+    });
     return cards.map((c) => this.toResponse(c));
   }
 

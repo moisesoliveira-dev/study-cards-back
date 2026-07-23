@@ -13,7 +13,7 @@ export class ListCardsByTopicUseCase {
 
   async execute(
     userId: string,
-    query: { topicId?: string; subjectId?: string },
+    query: { topicId?: string; subjectId?: string; all?: boolean },
   ): Promise<Card[]> {
     if (query.topicId) {
       const topic = await this.topics.findById(query.topicId);
@@ -39,7 +39,9 @@ export class ListCardsByTopicUseCase {
       if (!subject) {
         throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
       }
-      const cards = await this.cards.findRootBySubjectId(query.subjectId);
+      const cards = query.all
+        ? await this.cards.findBySubjectId(query.subjectId)
+        : await this.cards.findRootBySubjectId(query.subjectId);
       return cards.sort((a, b) => a.position - b.position);
     }
 

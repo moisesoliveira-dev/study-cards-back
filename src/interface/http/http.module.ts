@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { SubjectController } from './subject/subject.controller';
 import { TopicController } from './topic/topic.controller';
 import { CardController } from './card/card.controller';
+import { FlowController } from './flow/flow.controller';
 import { HealthController } from './health/health.controller';
 import { AuthController } from './auth/auth.controller';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -25,6 +26,11 @@ import { MergeCardsUseCase } from '../../application/card/merge-cards.use-case';
 import { MoveCardUseCase } from '../../application/card/move-card.use-case';
 import { GetCardUseCase } from '../../application/card/get-card.use-case';
 import { GetCardsByIdsUseCase } from '../../application/card/get-cards-by-ids.use-case';
+import { CreateFlowBoardUseCase } from '../../application/flow/create-flow-board.use-case';
+import { ListFlowBoardsUseCase } from '../../application/flow/list-flow-boards.use-case';
+import { GetFlowBoardUseCase } from '../../application/flow/get-flow-board.use-case';
+import { UpdateFlowBoardUseCase } from '../../application/flow/update-flow-board.use-case';
+import { DeleteFlowBoardUseCase } from '../../application/flow/delete-flow-board.use-case';
 import { RegisterUserUseCase } from '../../application/auth/register-user.use-case';
 import { LoginUserUseCase } from '../../application/auth/login-user.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/get-current-user.use-case';
@@ -33,11 +39,13 @@ import {
   TOPIC_REPOSITORY,
   CARD_REPOSITORY,
   USER_REPOSITORY,
+  FLOW_BOARD_REPOSITORY,
 } from '../../domain/tokens';
 import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { CardRepository } from '../../domain/card/card.repository';
 import { UserRepository } from '../../domain/user/user.repository';
+import { FlowBoardRepository } from '../../domain/flow/flow-board.repository';
 import { JwtService } from '@nestjs/jwt';
 import { TokenSigner } from '../../application/auth/register-user.use-case';
 
@@ -60,6 +68,7 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
     SubjectController,
     TopicController,
     CardController,
+    FlowController,
   ],
   providers: [
     JwtAuthGuard,
@@ -205,6 +214,35 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
       useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
         new GetCardsByIdsUseCase(cards, subjects),
       inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: CreateFlowBoardUseCase,
+      useFactory: (flows: FlowBoardRepository, subjects: SubjectRepository) =>
+        new CreateFlowBoardUseCase(flows, subjects),
+      inject: [FLOW_BOARD_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: ListFlowBoardsUseCase,
+      useFactory: (flows: FlowBoardRepository) =>
+        new ListFlowBoardsUseCase(flows),
+      inject: [FLOW_BOARD_REPOSITORY],
+    },
+    {
+      provide: GetFlowBoardUseCase,
+      useFactory: (flows: FlowBoardRepository) => new GetFlowBoardUseCase(flows),
+      inject: [FLOW_BOARD_REPOSITORY],
+    },
+    {
+      provide: UpdateFlowBoardUseCase,
+      useFactory: (flows: FlowBoardRepository) =>
+        new UpdateFlowBoardUseCase(flows),
+      inject: [FLOW_BOARD_REPOSITORY],
+    },
+    {
+      provide: DeleteFlowBoardUseCase,
+      useFactory: (flows: FlowBoardRepository) =>
+        new DeleteFlowBoardUseCase(flows),
+      inject: [FLOW_BOARD_REPOSITORY],
     },
   ],
 })
