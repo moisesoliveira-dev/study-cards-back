@@ -102,3 +102,10 @@ export class MergeCardsDto {
   @IsString()
   tag?: string;
 }
+
+export class MoveCardDto {
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsUUID()
+  @IsOptional()
+  topicId?: string | null;
+}

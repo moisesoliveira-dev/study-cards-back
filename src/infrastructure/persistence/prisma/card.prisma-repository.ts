@@ -28,6 +28,8 @@ export class CardPrismaRepository implements CardRepository {
       where: { id: data.id },
       create: data,
       update: {
+        subjectId: data.subjectId,
+        topicId: data.topicId,
         front: data.front,
         back: data.back,
         hint: data.hint,

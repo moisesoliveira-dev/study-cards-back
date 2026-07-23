@@ -16,6 +16,7 @@ export class UpdateTopicUseCase {
       name?: string;
       description?: string | null;
       position?: number;
+      parentId?: string | null;
     },
   ): Promise<Topic> {
     const topic = await this.topics.findById(id);
@@ -35,13 +36,53 @@ export class UpdateTopicUseCase {
       throw new DomainError('TOPIC_NAME_REQUIRED', 'Topic name is required');
     }
 
+    let parentId = topic.parentId;
+    if (input.parentId !== undefined) {
+      parentId = input.parentId;
+      if (parentId === id) {
+        throw new DomainError(
+          'TOPIC_PARENT_INVALID',
+          'Uma pasta não pode ser filha de si mesma',
+        );
+      }
+      if (parentId) {
+        const parent = await this.topics.findById(parentId);
+        if (!parent || parent.subjectId !== topic.subjectId) {
+          throw new DomainError(
+            'TOPIC_PARENT_INVALID',
+            'Pasta pai inválida',
+          );
+        }
+        const descendants = await this.topics.findDescendantIds(id);
+        if (descendants.includes(parentId)) {
+          throw new DomainError(
+            'TOPIC_PARENT_CYCLE',
+            'Não dá para mover uma pasta para dentro dela mesma',
+          );
+        }
+      }
+    }
+
+    let position = input.position;
+    if (input.parentId !== undefined && input.parentId !== topic.parentId) {
+      const siblings = await this.topics.findByParentId(
+        parentId,
+        topic.subjectId,
+      );
+      position =
+        siblings.length
+          ? Math.max(...siblings.map((s) => s.position)) + 1
+          : 0;
+    }
+
     topic.update({
       name: input.name?.trim(),
       description:
         input.description === undefined
           ? undefined
           : input.description?.trim() || null,
-      position: input.position,
+      position,
+      parentId: input.parentId !== undefined ? parentId : undefined,
     });
 
     return this.topics.save(topic);

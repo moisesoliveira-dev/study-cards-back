@@ -44,4 +44,9 @@ export class UpdateTopicDto {
   @IsInt()
   @Min(0)
   position?: number;
+
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsUUID()
+  @IsOptional()
+  parentId?: string | null;
 }

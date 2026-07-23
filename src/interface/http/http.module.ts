@@ -22,6 +22,7 @@ import { GetStudyDeckUseCase } from '../../application/card/get-study-deck.use-c
 import { UpdateCardUseCase } from '../../application/card/update-card.use-case';
 import { DeleteCardUseCase } from '../../application/card/delete-card.use-case';
 import { MergeCardsUseCase } from '../../application/card/merge-cards.use-case';
+import { MoveCardUseCase } from '../../application/card/move-card.use-case';
 import { RegisterUserUseCase } from '../../application/auth/register-user.use-case';
 import { LoginUserUseCase } from '../../application/auth/login-user.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/get-current-user.use-case';
@@ -180,6 +181,15 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
         topics: TopicRepository,
         subjects: SubjectRepository,
       ) => new MergeCardsUseCase(cards, topics, subjects),
+      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: MoveCardUseCase,
+      useFactory: (
+        cards: CardRepository,
+        topics: TopicRepository,
+        subjects: SubjectRepository,
+      ) => new MoveCardUseCase(cards, topics, subjects),
       inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
   ],

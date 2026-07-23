@@ -67,6 +67,7 @@ export class Card {
     tag?: string;
     status?: CardStatus;
     position?: number;
+    topicId?: string | null;
   }): void {
     const nextFront = input.front ?? this.props.front;
     const nextBack = input.back ?? this.props.back;
@@ -78,6 +79,7 @@ export class Card {
     if (input.tag !== undefined) this.props.tag = input.tag.trim() || 'Conceito';
     if (input.status !== undefined) this.props.status = input.status;
     if (input.position !== undefined) this.props.position = input.position;
+    if (input.topicId !== undefined) this.props.topicId = input.topicId;
     this.props.updatedAt = new Date();
   }
 

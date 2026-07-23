@@ -16,11 +16,12 @@ import { GetStudyDeckUseCase } from '../../../application/card/get-study-deck.us
 import { UpdateCardUseCase } from '../../../application/card/update-card.use-case';
 import { DeleteCardUseCase } from '../../../application/card/delete-card.use-case';
 import { MergeCardsUseCase } from '../../../application/card/merge-cards.use-case';
-import { CreateCardDto, MergeCardsDto, UpdateCardDto } from './card.dto';
+import { CreateCardDto, MergeCardsDto, MoveCardDto, UpdateCardDto } from './card.dto';
 import { Card } from '../../../domain/card/card.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthUser } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { MoveCardUseCase } from '../../../application/card/move-card.use-case';
 
 @Controller('cards')
 @UseGuards(JwtAuthGuard)
@@ -38,6 +39,8 @@ export class CardController {
     private readonly deleteCard: DeleteCardUseCase,
     @Inject(MergeCardsUseCase)
     private readonly mergeCards: MergeCardsUseCase,
+    @Inject(MoveCardUseCase)
+    private readonly moveCard: MoveCardUseCase,
   ) {}
 
   @Get()
@@ -68,6 +71,15 @@ export class CardController {
   @Post('merge')
   async merge(@CurrentUser() user: AuthUser, @Body() dto: MergeCardsDto) {
     return this.toResponse(await this.mergeCards.execute(user.id, dto));
+  }
+
+  @Post(':id/move')
+  async move(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: MoveCardDto,
+  ) {
+    return this.toResponse(await this.moveCard.execute(user.id, id, dto));
   }
 
   @Patch(':id')
