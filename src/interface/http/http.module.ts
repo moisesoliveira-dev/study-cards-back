@@ -34,6 +34,8 @@ import { DeleteFlowBoardUseCase } from '../../application/flow/delete-flow-board
 import { RegisterUserUseCase } from '../../application/auth/register-user.use-case';
 import { LoginUserUseCase } from '../../application/auth/login-user.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/get-current-user.use-case';
+import { UpdateCurrentUserUseCase } from '../../application/auth/update-current-user.use-case';
+import { ChangePasswordUseCase } from '../../application/auth/change-password.use-case';
 import {
   SUBJECT_REPOSITORY,
   TOPIC_REPOSITORY,
@@ -95,6 +97,17 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
     {
       provide: GetCurrentUserUseCase,
       useFactory: (users: UserRepository) => new GetCurrentUserUseCase(users),
+      inject: [USER_REPOSITORY],
+    },
+    {
+      provide: UpdateCurrentUserUseCase,
+      useFactory: (users: UserRepository) =>
+        new UpdateCurrentUserUseCase(users),
+      inject: [USER_REPOSITORY],
+    },
+    {
+      provide: ChangePasswordUseCase,
+      useFactory: (users: UserRepository) => new ChangePasswordUseCase(users),
       inject: [USER_REPOSITORY],
     },
     {

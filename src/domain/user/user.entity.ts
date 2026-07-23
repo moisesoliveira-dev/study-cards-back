@@ -30,6 +30,21 @@ export class User {
     return new User({ ...props });
   }
 
+  updateProfile(input: { name?: string | null; email?: string }): void {
+    if (input.name !== undefined) {
+      this.props.name = input.name?.trim() || null;
+    }
+    if (input.email !== undefined) {
+      this.props.email = input.email.toLowerCase().trim();
+    }
+    this.props.updatedAt = new Date();
+  }
+
+  changePasswordHash(passwordHash: string): void {
+    this.props.passwordHash = passwordHash;
+    this.props.updatedAt = new Date();
+  }
+
   get id(): string {
     return this.props.id;
   }
