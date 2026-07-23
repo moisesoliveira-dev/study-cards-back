@@ -1,0 +1,3 @@
+export const SUBJECT_REPOSITORY = Symbol('SUBJECT_REPOSITORY');
+export const TOPIC_REPOSITORY = Symbol('TOPIC_REPOSITORY');
+export const CARD_REPOSITORY = Symbol('CARD_REPOSITORY');

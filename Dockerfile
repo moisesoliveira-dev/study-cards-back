@@ -46,7 +46,7 @@ RUN npx prisma generate \
   && npm run build \
   && npm prune --omit=dev
 
-# --- Production ---
+# --- Production (local docker-compose) ---
 FROM node:${NODE_VERSION}-alpine AS production
 WORKDIR /app
 
@@ -60,9 +60,11 @@ COPY --from=build --chown=nestjs:nestjs /app/node_modules ./node_modules
 COPY --from=build --chown=nestjs:nestjs /app/package.json ./
 COPY --from=build --chown=nestjs:nestjs /app/prisma ./prisma
 COPY --from=build --chown=nestjs:nestjs /app/prisma.config.ts ./prisma.config.ts
+COPY --chown=nestjs:nestjs docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 USER nestjs
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+CMD ["./docker-entrypoint.sh"]
