@@ -20,6 +20,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG DATABASE_URL=postgresql://studycards:studycards@postgres:5432/studycards?schema=public
+ENV DATABASE_URL=${DATABASE_URL}
+
+RUN npx prisma generate
+
 ENV NODE_ENV=development
 ENV PORT=3000
 
@@ -34,7 +39,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build \
+ARG DATABASE_URL=postgresql://studycards:studycards@postgres:5432/studycards?schema=public
+ENV DATABASE_URL=${DATABASE_URL}
+
+RUN npx prisma generate \
+  && npm run build \
   && npm prune --omit=dev
 
 # --- Production ---
@@ -49,6 +58,8 @@ RUN addgroup -S nestjs && adduser -S nestjs -G nestjs
 COPY --from=build --chown=nestjs:nestjs /app/dist ./dist
 COPY --from=build --chown=nestjs:nestjs /app/node_modules ./node_modules
 COPY --from=build --chown=nestjs:nestjs /app/package.json ./
+COPY --from=build --chown=nestjs:nestjs /app/prisma ./prisma
+COPY --from=build --chown=nestjs:nestjs /app/prisma.config.ts ./prisma.config.ts
 
 USER nestjs
 
