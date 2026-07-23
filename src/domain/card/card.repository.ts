@@ -6,6 +6,8 @@ export interface CardRepository {
   findByIds(ids: string[]): Promise<Card[]>;
   findByTopicId(topicId: string): Promise<Card[]>;
   findByTopicIds(ids: string[]): Promise<Card[]>;
+  findRootBySubjectId(subjectId: string): Promise<Card[]>;
+  findBySubjectId(subjectId: string): Promise<Card[]>;
   delete(id: string): Promise<void>;
   linkSources(targetCardId: string, sourceCardIds: string[]): Promise<void>;
   countLinks(cardId: string): Promise<number>;

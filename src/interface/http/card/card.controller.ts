@@ -43,18 +43,20 @@ export class CardController {
   @Get()
   async list(
     @CurrentUser() user: AuthUser,
-    @Query('topicId') topicId: string,
+    @Query('topicId') topicId?: string,
+    @Query('subjectId') subjectId?: string,
   ) {
-    const cards = await this.listCards.execute(user.id, topicId);
+    const cards = await this.listCards.execute(user.id, { topicId, subjectId });
     return cards.map((c) => this.toResponse(c));
   }
 
   @Get('study')
   async study(
     @CurrentUser() user: AuthUser,
-    @Query('topicId') topicId: string,
+    @Query('topicId') topicId?: string,
+    @Query('subjectId') subjectId?: string,
   ) {
-    const cards = await this.studyDeck.execute(user.id, topicId);
+    const cards = await this.studyDeck.execute(user.id, { topicId, subjectId });
     return cards.map((c) => this.toResponse(c));
   }
 
@@ -86,6 +88,7 @@ export class CardController {
   private toResponse(card: Card) {
     return {
       id: card.id,
+      subjectId: card.subjectId,
       topicId: card.topicId,
       front: card.front,
       back: card.back,

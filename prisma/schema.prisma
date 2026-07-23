@@ -34,6 +34,7 @@ model Subject {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   topics      Topic[]
+  cards       Card[]
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([name])
@@ -62,7 +63,8 @@ model Topic {
 
 model Card {
   id        String     @id @default(cuid())
-  topicId   String
+  subjectId String
+  topicId   String?
   front     String
   back      String
   hint      String?
@@ -72,11 +74,14 @@ model Card {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  topic   Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  subject Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topic   Topic?     @relation(fields: [topicId], references: [id], onDelete: Cascade)
   sources CardLink[] @relation("MergedFrom")
   usedIn  CardLink[] @relation("MergedInto")
 
+  @@index([subjectId])
   @@index([topicId])
+  @@index([subjectId, topicId])
   @@index([status])
 }
 

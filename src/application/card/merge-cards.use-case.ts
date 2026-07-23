@@ -14,7 +14,8 @@ export class MergeCardsUseCase {
   async execute(
     userId: string,
     input: {
-      topicId: string;
+      subjectId?: string;
+      topicId?: string | null;
       sourceCardIds: string[];
       front: string;
       back: string;
@@ -30,30 +31,56 @@ export class MergeCardsUseCase {
       );
     }
 
-    const topic = await this.topics.findById(input.topicId);
-    if (!topic) {
-      throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
-    }
-    const subject = await this.subjects.findByIdForUser(
-      topic.subjectId,
-      userId,
-    );
-    if (!subject) {
-      throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
+    let subjectId = input.subjectId?.trim() || '';
+    const topicId = input.topicId?.trim() || null;
+
+    if (topicId) {
+      const topic = await this.topics.findById(topicId);
+      if (!topic) {
+        throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
+      }
+      const subject = await this.subjects.findByIdForUser(
+        topic.subjectId,
+        userId,
+      );
+      if (!subject) {
+        throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
+      }
+      subjectId = topic.subjectId;
+    } else {
+      if (!subjectId) {
+        throw new DomainError(
+          'SUBJECT_REQUIRED',
+          'Informe o grupo (subjectId) para unir cards na raiz',
+        );
+      }
+      const subject = await this.subjects.findByIdForUser(subjectId, userId);
+      if (!subject) {
+        throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
+      }
     }
 
     const sources = await this.cards.findByIds(uniqueIds);
     if (sources.length !== uniqueIds.length) {
       throw new DomainError('CARD_NOT_FOUND', 'One or more source cards not found');
     }
+    if (sources.some((s) => s.subjectId !== subjectId)) {
+      throw new DomainError(
+        'CARD_SUBJECT_MISMATCH',
+        'Todos os cards devem pertencer ao mesmo grupo',
+      );
+    }
 
-    const existing = await this.cards.findByTopicId(input.topicId);
-    const position = existing.length
-      ? Math.max(...existing.map((c) => c.position)) + 1
+    const siblings = topicId
+      ? await this.cards.findByTopicId(topicId)
+      : await this.cards.findRootBySubjectId(subjectId);
+    const position = siblings.length
+      ? Math.max(...siblings.map((c) => c.position)) + 1
       : 0;
 
     const merged = Card.create({
-      topicId: input.topicId,
+      subjectId,
+      topicId,
       front: input.front,
       back: input.back,
       hint: input.hint,

@@ -163,21 +163,15 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
     },
     {
       provide: UpdateCardUseCase,
-      useFactory: (
-        cards: CardRepository,
-        topics: TopicRepository,
-        subjects: SubjectRepository,
-      ) => new UpdateCardUseCase(cards, topics, subjects),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
+      useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
+        new UpdateCardUseCase(cards, subjects),
+      inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: DeleteCardUseCase,
-      useFactory: (
-        cards: CardRepository,
-        topics: TopicRepository,
-        subjects: SubjectRepository,
-      ) => new DeleteCardUseCase(cards, topics, subjects),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
+      useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
+        new DeleteCardUseCase(cards, subjects),
+      inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: MergeCardsUseCase,

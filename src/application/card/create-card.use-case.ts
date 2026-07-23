@@ -4,23 +4,6 @@ import { TopicRepository } from '../../domain/topic/topic.repository';
 import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { DomainError } from '../../domain/shared/domain.error';
 
-async function assertTopicOwnedBy(
-  topics: TopicRepository,
-  subjects: SubjectRepository,
-  topicId: string,
-  userId: string,
-) {
-  const topic = await topics.findById(topicId);
-  if (!topic) {
-    throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
-  }
-  const subject = await subjects.findByIdForUser(topic.subjectId, userId);
-  if (!subject) {
-    throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
-  }
-  return topic;
-}
-
 export class CreateCardUseCase {
   constructor(
     private readonly cards: CardRepository,
@@ -31,7 +14,8 @@ export class CreateCardUseCase {
   async execute(
     userId: string,
     input: {
-      topicId: string;
+      subjectId?: string;
+      topicId?: string | null;
       front: string;
       back: string;
       hint?: string | null;
@@ -39,22 +23,47 @@ export class CreateCardUseCase {
       position?: number;
     },
   ): Promise<Card> {
-    await assertTopicOwnedBy(
-      this.topics,
-      this.subjects,
-      input.topicId,
-      userId,
-    );
+    let subjectId = input.subjectId?.trim() || '';
+    const topicId = input.topicId?.trim() || null;
 
-    const existing = await this.cards.findByTopicId(input.topicId);
+    if (topicId) {
+      const topic = await this.topics.findById(topicId);
+      if (!topic) {
+        throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
+      }
+      const subject = await this.subjects.findByIdForUser(
+        topic.subjectId,
+        userId,
+      );
+      if (!subject) {
+        throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
+      }
+      subjectId = topic.subjectId;
+    } else {
+      if (!subjectId) {
+        throw new DomainError(
+          'SUBJECT_REQUIRED',
+          'Informe o grupo (subjectId) para criar o card na raiz',
+        );
+      }
+      const subject = await this.subjects.findByIdForUser(subjectId, userId);
+      if (!subject) {
+        throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
+      }
+    }
+
+    const siblings = topicId
+      ? await this.cards.findByTopicId(topicId)
+      : await this.cards.findRootBySubjectId(subjectId);
     const position =
       input.position ??
-      (existing.length
-        ? Math.max(...existing.map((c) => c.position)) + 1
+      (siblings.length
+        ? Math.max(...siblings.map((c) => c.position)) + 1
         : 0);
 
     const card = Card.create({
-      topicId: input.topicId,
+      subjectId,
+      topicId,
       front: input.front,
       back: input.back,
       hint: input.hint?.trim() || null,

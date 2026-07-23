@@ -94,6 +94,7 @@ export class CardMapper {
   ): Card {
     return Card.reconstitute({
       id: row.id,
+      subjectId: row.subjectId,
       topicId: row.topicId,
       front: row.front,
       back: row.back,
@@ -111,6 +112,7 @@ export class CardMapper {
   static toPersistence(card: Card) {
     return {
       id: card.id,
+      subjectId: card.subjectId,
       topicId: card.topicId,
       front: card.front,
       back: card.back,

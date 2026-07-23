@@ -70,6 +70,22 @@ export class CardPrismaRepository implements CardRepository {
     return Promise.all(rows.map((row) => this.withMeta(row)));
   }
 
+  async findRootBySubjectId(subjectId: string): Promise<Card[]> {
+    const rows = await this.prisma.card.findMany({
+      where: { subjectId, topicId: null },
+      orderBy: { position: 'asc' },
+    });
+    return Promise.all(rows.map((row) => this.withMeta(row)));
+  }
+
+  async findBySubjectId(subjectId: string): Promise<Card[]> {
+    const rows = await this.prisma.card.findMany({
+      where: { subjectId },
+      orderBy: { position: 'asc' },
+    });
+    return Promise.all(rows.map((row) => this.withMeta(row)));
+  }
+
   async delete(id: string): Promise<void> {
     await this.prisma.card.delete({ where: { id } });
   }

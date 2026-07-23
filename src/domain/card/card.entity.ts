@@ -4,7 +4,8 @@ export type CardStatus = 'NEW' | 'REVIEW' | 'KNOWN';
 
 export interface CardProps {
   id: string;
-  topicId: string;
+  subjectId: string;
+  topicId: string | null;
   front: string;
   back: string;
   hint: string | null;
@@ -21,7 +22,8 @@ export class Card {
   private constructor(private props: CardProps) {}
 
   static create(input: {
-    topicId: string;
+    subjectId: string;
+    topicId?: string | null;
     front: string;
     back: string;
     hint?: string | null;
@@ -35,7 +37,8 @@ export class Card {
 
     return new Card({
       id: crypto.randomUUID(),
-      topicId: input.topicId,
+      subjectId: input.subjectId,
+      topicId: input.topicId ?? null,
       front: input.front.trim(),
       back: input.back.trim(),
       hint: input.hint?.trim() || null,
@@ -94,6 +97,9 @@ export class Card {
 
   get id() {
     return this.props.id;
+  }
+  get subjectId() {
+    return this.props.subjectId;
   }
   get topicId() {
     return this.props.topicId;

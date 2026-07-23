@@ -1,8 +1,25 @@
-import { IsArray, IsIn, IsInt, IsOptional, IsString, IsUUID, Min, MinLength, ArrayMinSize } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  MinLength,
+  ArrayMinSize,
+  ValidateIf,
+} from 'class-validator';
 
 export class CreateCardDto {
+  @IsOptional()
   @IsUUID()
-  topicId!: string;
+  subjectId?: string;
+
+  @ValidateIf((o: CreateCardDto) => Boolean(o.topicId))
+  @IsUUID()
+  @IsOptional()
+  topicId?: string | null;
 
   @IsString()
   @MinLength(1)
@@ -56,8 +73,13 @@ export class UpdateCardDto {
 }
 
 export class MergeCardsDto {
+  @IsOptional()
   @IsUUID()
-  topicId!: string;
+  subjectId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  topicId?: string | null;
 
   @IsArray()
   @ArrayMinSize(2)
