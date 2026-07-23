@@ -109,6 +109,10 @@ export class MergeCardsDto {
   @IsOptional()
   @IsString()
   tag?: string;
+
+  @IsOptional()
+  @IsString()
+  document?: string | null;
 }
 
 export class MoveCardDto {

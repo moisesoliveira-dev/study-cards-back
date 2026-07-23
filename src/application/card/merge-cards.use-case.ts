@@ -19,6 +19,7 @@ export class MergeCardsUseCase {
       sourceCardIds: string[];
       front: string;
       back: string;
+      document?: string | null;
       hint?: string | null;
       tag?: string;
     },
@@ -83,6 +84,7 @@ export class MergeCardsUseCase {
       topicId,
       front: input.front,
       back: input.back,
+      document: input.document,
       hint: input.hint,
       tag: input.tag ?? 'Síntese',
       status: 'NEW',

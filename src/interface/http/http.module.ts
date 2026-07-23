@@ -23,6 +23,8 @@ import { UpdateCardUseCase } from '../../application/card/update-card.use-case';
 import { DeleteCardUseCase } from '../../application/card/delete-card.use-case';
 import { MergeCardsUseCase } from '../../application/card/merge-cards.use-case';
 import { MoveCardUseCase } from '../../application/card/move-card.use-case';
+import { GetCardUseCase } from '../../application/card/get-card.use-case';
+import { GetCardsByIdsUseCase } from '../../application/card/get-cards-by-ids.use-case';
 import { RegisterUserUseCase } from '../../application/auth/register-user.use-case';
 import { LoginUserUseCase } from '../../application/auth/login-user.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/get-current-user.use-case';
@@ -191,6 +193,18 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
         subjects: SubjectRepository,
       ) => new MoveCardUseCase(cards, topics, subjects),
       inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: GetCardUseCase,
+      useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
+        new GetCardUseCase(cards, subjects),
+      inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: GetCardsByIdsUseCase,
+      useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
+        new GetCardsByIdsUseCase(cards, subjects),
+      inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
     },
   ],
 })

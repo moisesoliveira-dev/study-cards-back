@@ -13,6 +13,8 @@ import {
 import { CreateCardUseCase } from '../../../application/card/create-card.use-case';
 import { ListCardsByTopicUseCase } from '../../../application/card/list-cards-by-topic.use-case';
 import { GetStudyDeckUseCase } from '../../../application/card/get-study-deck.use-case';
+import { GetCardUseCase } from '../../../application/card/get-card.use-case';
+import { GetCardsByIdsUseCase } from '../../../application/card/get-cards-by-ids.use-case';
 import { UpdateCardUseCase } from '../../../application/card/update-card.use-case';
 import { DeleteCardUseCase } from '../../../application/card/delete-card.use-case';
 import { MergeCardsUseCase } from '../../../application/card/merge-cards.use-case';
@@ -33,6 +35,10 @@ export class CardController {
     private readonly listCards: ListCardsByTopicUseCase,
     @Inject(GetStudyDeckUseCase)
     private readonly studyDeck: GetStudyDeckUseCase,
+    @Inject(GetCardUseCase)
+    private readonly getCard: GetCardUseCase,
+    @Inject(GetCardsByIdsUseCase)
+    private readonly getCardsByIds: GetCardsByIdsUseCase,
     @Inject(UpdateCardUseCase)
     private readonly updateCard: UpdateCardUseCase,
     @Inject(DeleteCardUseCase)
@@ -48,7 +54,15 @@ export class CardController {
     @CurrentUser() user: AuthUser,
     @Query('topicId') topicId?: string,
     @Query('subjectId') subjectId?: string,
+    @Query('ids') ids?: string,
   ) {
+    if (ids?.trim()) {
+      const list = await this.getCardsByIds.execute(
+        user.id,
+        ids.split(',').map((id) => id.trim()),
+      );
+      return list.map((c) => this.toResponse(c));
+    }
     const cards = await this.listCards.execute(user.id, { topicId, subjectId });
     return cards.map((c) => this.toResponse(c));
   }
@@ -61,6 +75,11 @@ export class CardController {
   ) {
     const cards = await this.studyDeck.execute(user.id, { topicId, subjectId });
     return cards.map((c) => this.toResponse(c));
+  }
+
+  @Get(':id')
+  async get(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.toResponse(await this.getCard.execute(user.id, id));
   }
 
   @Post()
