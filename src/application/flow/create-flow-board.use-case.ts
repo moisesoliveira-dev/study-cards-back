@@ -18,7 +18,10 @@ export class CreateFlowBoardUseCase {
       userId,
     );
     if (!subject) {
-      throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
+      throw new DomainError(
+        'SUBJECT_NOT_FOUND',
+        'Grupo não encontrado. Crie um grupo de cartas antes.',
+      );
     }
     const board = FlowBoard.create({
       userId,

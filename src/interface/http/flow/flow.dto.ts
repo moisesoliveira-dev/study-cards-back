@@ -1,13 +1,8 @@
-import {
-  IsArray,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MinLength,
-} from 'class-validator';
+import { IsArray, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateFlowBoardDto {
-  @IsUUID()
+  @IsString()
+  @MinLength(1)
   subjectId!: string;
 
   @IsString()

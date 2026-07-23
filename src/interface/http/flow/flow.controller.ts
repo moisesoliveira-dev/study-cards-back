@@ -86,8 +86,8 @@ export class FlowController {
       userId: board.userId,
       subjectId: board.subjectId,
       name: board.name,
-      nodes: board.nodes,
-      edges: board.edges,
+      nodes: Array.isArray(board.nodes) ? board.nodes : [],
+      edges: Array.isArray(board.edges) ? board.edges : [],
       createdAt: board.createdAt,
       updatedAt: board.updatedAt,
     };
