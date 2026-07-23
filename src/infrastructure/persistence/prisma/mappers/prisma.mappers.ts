@@ -1,16 +1,43 @@
+import { User } from '../../../../domain/user/user.entity';
 import { Subject } from '../../../../domain/subject/subject.entity';
 import { Topic } from '../../../../domain/topic/topic.entity';
 import { Card, CardStatus } from '../../../../domain/card/card.entity';
 import {
+  User as PrismaUser,
   Subject as PrismaSubject,
   Topic as PrismaTopic,
   Card as PrismaCard,
 } from '@prisma/client';
 
+export class UserMapper {
+  static toDomain(row: PrismaUser): User {
+    return User.reconstitute({
+      id: row.id,
+      email: row.email,
+      passwordHash: row.passwordHash,
+      name: row.name,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    });
+  }
+
+  static toPersistence(user: User) {
+    return {
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      name: user.name,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+}
+
 export class SubjectMapper {
   static toDomain(row: PrismaSubject): Subject {
     return Subject.reconstitute({
       id: row.id,
+      userId: row.userId,
       name: row.name,
       description: row.description,
       color: row.color,
@@ -22,6 +49,7 @@ export class SubjectMapper {
   static toPersistence(subject: Subject) {
     return {
       id: subject.id,
+      userId: subject.userId,
       name: subject.name,
       description: subject.description,
       color: subject.color,

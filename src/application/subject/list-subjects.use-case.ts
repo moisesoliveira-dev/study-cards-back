@@ -4,7 +4,7 @@ import { SubjectRepository } from '../../domain/subject/subject.repository';
 export class ListSubjectsUseCase {
   constructor(private readonly subjects: SubjectRepository) {}
 
-  execute(): Promise<Subject[]> {
-    return this.subjects.findAll();
+  execute(userId: string): Promise<Subject[]> {
+    return this.subjects.findByUserId(userId);
   }
 }

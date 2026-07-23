@@ -13,16 +13,31 @@ enum CardStatus {
   KNOWN
 }
 
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  subjects     Subject[]
+
+  @@index([email])
+}
+
 model Subject {
   id          String   @id @default(cuid())
+  userId      String
   name        String
   description String?
   color       String   @default("#BA7517")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   topics      Topic[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([name])
+  @@index([userId])
 }
 
 model Topic {

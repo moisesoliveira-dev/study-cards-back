@@ -1,5 +1,6 @@
 export interface SubjectProps {
   id: string;
+  userId: string;
   name: string;
   description: string | null;
   color: string;
@@ -11,6 +12,7 @@ export class Subject {
   private constructor(private props: SubjectProps) {}
 
   static create(input: {
+    userId: string;
     name: string;
     description?: string | null;
     color?: string;
@@ -19,6 +21,7 @@ export class Subject {
 
     return new Subject({
       id: crypto.randomUUID(),
+      userId: input.userId,
       name: input.name,
       description: input.description ?? null,
       color: input.color ?? '#1b4332',
@@ -48,8 +51,16 @@ export class Subject {
     this.props.updatedAt = new Date();
   }
 
+  belongsTo(userId: string): boolean {
+    return this.props.userId === userId;
+  }
+
   get id(): string {
     return this.props.id;
+  }
+
+  get userId(): string {
+    return this.props.userId;
   }
 
   get name(): string {

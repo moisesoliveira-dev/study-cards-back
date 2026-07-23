@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { SubjectController } from './subject/subject.controller';
 import { TopicController } from './topic/topic.controller';
 import { CardController } from './card/card.controller';
 import { HealthController } from './health/health.controller';
+import { AuthController } from './auth/auth.controller';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { CreateSubjectUseCase } from '../../application/subject/create-subject.use-case';
 import { ListSubjectsUseCase } from '../../application/subject/list-subjects.use-case';
 import { GetSubjectUseCase } from '../../application/subject/get-subject.use-case';
@@ -18,23 +22,69 @@ import { GetStudyDeckUseCase } from '../../application/card/get-study-deck.use-c
 import { UpdateCardUseCase } from '../../application/card/update-card.use-case';
 import { DeleteCardUseCase } from '../../application/card/delete-card.use-case';
 import { MergeCardsUseCase } from '../../application/card/merge-cards.use-case';
+import { RegisterUserUseCase } from '../../application/auth/register-user.use-case';
+import { LoginUserUseCase } from '../../application/auth/login-user.use-case';
+import { GetCurrentUserUseCase } from '../../application/auth/get-current-user.use-case';
 import {
   SUBJECT_REPOSITORY,
   TOPIC_REPOSITORY,
   CARD_REPOSITORY,
+  USER_REPOSITORY,
 } from '../../domain/tokens';
 import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { CardRepository } from '../../domain/card/card.repository';
+import { UserRepository } from '../../domain/user/user.repository';
+import { JwtService } from '@nestjs/jwt';
+import { TokenSigner } from '../../application/auth/register-user.use-case';
 
 @Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET') ?? 'dev-secret-change-me',
+        signOptions: {
+          expiresIn: Number(config.get('JWT_EXPIRES_SECONDS')) || 60 * 60 * 24 * 7,
+        },
+      }),
+    }),
+  ],
   controllers: [
     HealthController,
+    AuthController,
     SubjectController,
     TopicController,
     CardController,
   ],
   providers: [
+    JwtAuthGuard,
+    {
+      provide: RegisterUserUseCase,
+      useFactory: (users: UserRepository, jwt: JwtService) => {
+        const signer: TokenSigner = {
+          sign: (payload) => jwt.signAsync(payload),
+        };
+        return new RegisterUserUseCase(users, signer);
+      },
+      inject: [USER_REPOSITORY, JwtService],
+    },
+    {
+      provide: LoginUserUseCase,
+      useFactory: (users: UserRepository, jwt: JwtService) => {
+        const signer: TokenSigner = {
+          sign: (payload) => jwt.signAsync(payload),
+        };
+        return new LoginUserUseCase(users, signer);
+      },
+      inject: [USER_REPOSITORY, JwtService],
+    },
+    {
+      provide: GetCurrentUserUseCase,
+      useFactory: (users: UserRepository) => new GetCurrentUserUseCase(users),
+      inject: [USER_REPOSITORY],
+    },
     {
       provide: CreateSubjectUseCase,
       useFactory: (repo: SubjectRepository) => new CreateSubjectUseCase(repo),
@@ -74,47 +124,69 @@ import { CardRepository } from '../../domain/card/card.repository';
     },
     {
       provide: UpdateTopicUseCase,
-      useFactory: (repo: TopicRepository) => new UpdateTopicUseCase(repo),
-      inject: [TOPIC_REPOSITORY],
+      useFactory: (topics: TopicRepository, subjects: SubjectRepository) =>
+        new UpdateTopicUseCase(topics, subjects),
+      inject: [TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: DeleteTopicUseCase,
-      useFactory: (repo: TopicRepository) => new DeleteTopicUseCase(repo),
-      inject: [TOPIC_REPOSITORY],
+      useFactory: (topics: TopicRepository, subjects: SubjectRepository) =>
+        new DeleteTopicUseCase(topics, subjects),
+      inject: [TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: CreateCardUseCase,
-      useFactory: (cards: CardRepository, topics: TopicRepository) =>
-        new CreateCardUseCase(cards, topics),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY],
+      useFactory: (
+        cards: CardRepository,
+        topics: TopicRepository,
+        subjects: SubjectRepository,
+      ) => new CreateCardUseCase(cards, topics, subjects),
+      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: ListCardsByTopicUseCase,
-      useFactory: (cards: CardRepository, topics: TopicRepository) =>
-        new ListCardsByTopicUseCase(cards, topics),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY],
+      useFactory: (
+        cards: CardRepository,
+        topics: TopicRepository,
+        subjects: SubjectRepository,
+      ) => new ListCardsByTopicUseCase(cards, topics, subjects),
+      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: GetStudyDeckUseCase,
-      useFactory: (cards: CardRepository, topics: TopicRepository) =>
-        new GetStudyDeckUseCase(cards, topics),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY],
+      useFactory: (
+        cards: CardRepository,
+        topics: TopicRepository,
+        subjects: SubjectRepository,
+      ) => new GetStudyDeckUseCase(cards, topics, subjects),
+      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: UpdateCardUseCase,
-      useFactory: (repo: CardRepository) => new UpdateCardUseCase(repo),
-      inject: [CARD_REPOSITORY],
+      useFactory: (
+        cards: CardRepository,
+        topics: TopicRepository,
+        subjects: SubjectRepository,
+      ) => new UpdateCardUseCase(cards, topics, subjects),
+      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: DeleteCardUseCase,
-      useFactory: (repo: CardRepository) => new DeleteCardUseCase(repo),
-      inject: [CARD_REPOSITORY],
+      useFactory: (
+        cards: CardRepository,
+        topics: TopicRepository,
+        subjects: SubjectRepository,
+      ) => new DeleteCardUseCase(cards, topics, subjects),
+      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: MergeCardsUseCase,
-      useFactory: (cards: CardRepository, topics: TopicRepository) =>
-        new MergeCardsUseCase(cards, topics),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY],
+      useFactory: (
+        cards: CardRepository,
+        topics: TopicRepository,
+        subjects: SubjectRepository,
+      ) => new MergeCardsUseCase(cards, topics, subjects),
+      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
   ],
 })

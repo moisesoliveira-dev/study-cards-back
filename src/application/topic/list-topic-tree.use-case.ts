@@ -21,8 +21,8 @@ export class ListTopicTreeUseCase {
     private readonly subjects: SubjectRepository,
   ) {}
 
-  async execute(subjectId: string): Promise<TopicTreeNode[]> {
-    const subject = await this.subjects.findById(subjectId);
+  async execute(userId: string, subjectId: string): Promise<TopicTreeNode[]> {
+    const subject = await this.subjects.findByIdForUser(subjectId, userId);
     if (!subject) {
       throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
     }

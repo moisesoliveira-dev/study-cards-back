@@ -9,19 +9,25 @@ export class CreateTopicUseCase {
     private readonly subjects: SubjectRepository,
   ) {}
 
-  async execute(input: {
-    subjectId: string;
-    parentId?: string | null;
-    name: string;
-    description?: string | null;
-    position?: number;
-  }): Promise<Topic> {
+  async execute(
+    userId: string,
+    input: {
+      subjectId: string;
+      parentId?: string | null;
+      name: string;
+      description?: string | null;
+      position?: number;
+    },
+  ): Promise<Topic> {
     const name = input.name?.trim();
     if (!name) {
       throw new DomainError('TOPIC_NAME_REQUIRED', 'Topic name is required');
     }
 
-    const subject = await this.subjects.findById(input.subjectId);
+    const subject = await this.subjects.findByIdForUser(
+      input.subjectId,
+      userId,
+    );
     if (!subject) {
       throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
     }

@@ -1,22 +1,27 @@
 import { Card } from '../../domain/card/card.entity';
 import { CardRepository } from '../../domain/card/card.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
+import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { DomainError } from '../../domain/shared/domain.error';
 
 export class MergeCardsUseCase {
   constructor(
     private readonly cards: CardRepository,
     private readonly topics: TopicRepository,
+    private readonly subjects: SubjectRepository,
   ) {}
 
-  async execute(input: {
-    topicId: string;
-    sourceCardIds: string[];
-    front: string;
-    back: string;
-    hint?: string | null;
-    tag?: string;
-  }): Promise<Card> {
+  async execute(
+    userId: string,
+    input: {
+      topicId: string;
+      sourceCardIds: string[];
+      front: string;
+      back: string;
+      hint?: string | null;
+      tag?: string;
+    },
+  ): Promise<Card> {
     const uniqueIds = [...new Set(input.sourceCardIds.filter(Boolean))];
     if (uniqueIds.length < 2) {
       throw new DomainError(
@@ -27,6 +32,13 @@ export class MergeCardsUseCase {
 
     const topic = await this.topics.findById(input.topicId);
     if (!topic) {
+      throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
+    }
+    const subject = await this.subjects.findByIdForUser(
+      topic.subjectId,
+      userId,
+    );
+    if (!subject) {
       throw new DomainError('TOPIC_NOT_FOUND', 'Topic not found');
     }
 

@@ -6,10 +6,11 @@ export class UpdateSubjectUseCase {
   constructor(private readonly subjects: SubjectRepository) {}
 
   async execute(
+    userId: string,
     id: string,
     input: { name?: string; description?: string | null; color?: string },
   ): Promise<Subject> {
-    const subject = await this.subjects.findById(id);
+    const subject = await this.subjects.findByIdForUser(id, userId);
     if (!subject) {
       throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
     }

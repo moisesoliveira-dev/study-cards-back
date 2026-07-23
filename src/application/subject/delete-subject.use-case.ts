@@ -4,8 +4,8 @@ import { DomainError } from '../../domain/shared/domain.error';
 export class DeleteSubjectUseCase {
   constructor(private readonly subjects: SubjectRepository) {}
 
-  async execute(id: string): Promise<void> {
-    const subject = await this.subjects.findById(id);
+  async execute(userId: string, id: string): Promise<void> {
+    const subject = await this.subjects.findByIdForUser(id, userId);
     if (!subject) {
       throw new DomainError('SUBJECT_NOT_FOUND', 'Subject not found');
     }

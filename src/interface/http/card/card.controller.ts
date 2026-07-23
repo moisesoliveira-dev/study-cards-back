@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateCardUseCase } from '../../../application/card/create-card.use-case';
 import { ListCardsByTopicUseCase } from '../../../application/card/list-cards-by-topic.use-case';
@@ -17,8 +18,12 @@ import { DeleteCardUseCase } from '../../../application/card/delete-card.use-cas
 import { MergeCardsUseCase } from '../../../application/card/merge-cards.use-case';
 import { CreateCardDto, MergeCardsDto, UpdateCardDto } from './card.dto';
 import { Card } from '../../../domain/card/card.entity';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { AuthUser } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
 @Controller('cards')
+@UseGuards(JwtAuthGuard)
 export class CardController {
   constructor(
     @Inject(CreateCardUseCase)
@@ -36,35 +41,45 @@ export class CardController {
   ) {}
 
   @Get()
-  async list(@Query('topicId') topicId: string) {
-    const cards = await this.listCards.execute(topicId);
+  async list(
+    @CurrentUser() user: AuthUser,
+    @Query('topicId') topicId: string,
+  ) {
+    const cards = await this.listCards.execute(user.id, topicId);
     return cards.map((c) => this.toResponse(c));
   }
 
   @Get('study')
-  async study(@Query('topicId') topicId: string) {
-    const cards = await this.studyDeck.execute(topicId);
+  async study(
+    @CurrentUser() user: AuthUser,
+    @Query('topicId') topicId: string,
+  ) {
+    const cards = await this.studyDeck.execute(user.id, topicId);
     return cards.map((c) => this.toResponse(c));
   }
 
   @Post()
-  async create(@Body() dto: CreateCardDto) {
-    return this.toResponse(await this.createCard.execute(dto));
+  async create(@CurrentUser() user: AuthUser, @Body() dto: CreateCardDto) {
+    return this.toResponse(await this.createCard.execute(user.id, dto));
   }
 
   @Post('merge')
-  async merge(@Body() dto: MergeCardsDto) {
-    return this.toResponse(await this.mergeCards.execute(dto));
+  async merge(@CurrentUser() user: AuthUser, @Body() dto: MergeCardsDto) {
+    return this.toResponse(await this.mergeCards.execute(user.id, dto));
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateCardDto) {
-    return this.toResponse(await this.updateCard.execute(id, dto));
+  async update(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateCardDto,
+  ) {
+    return this.toResponse(await this.updateCard.execute(user.id, id, dto));
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    await this.deleteCard.execute(id);
+  async remove(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    await this.deleteCard.execute(user.id, id);
     return { ok: true };
   }
 

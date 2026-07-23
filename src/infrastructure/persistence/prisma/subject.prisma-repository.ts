@@ -28,8 +28,16 @@ export class SubjectPrismaRepository implements SubjectRepository {
     return row ? SubjectMapper.toDomain(row) : null;
   }
 
-  async findAll(): Promise<Subject[]> {
+  async findByIdForUser(id: string, userId: string): Promise<Subject | null> {
+    const row = await this.prisma.subject.findFirst({
+      where: { id, userId },
+    });
+    return row ? SubjectMapper.toDomain(row) : null;
+  }
+
+  async findByUserId(userId: string): Promise<Subject[]> {
     const rows = await this.prisma.subject.findMany({
+      where: { userId },
       orderBy: { name: 'asc' },
     });
     return rows.map(SubjectMapper.toDomain);
