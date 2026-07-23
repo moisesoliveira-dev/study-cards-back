@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DomainErrorFilter } from './interface/http/filters/domain-error.filter';
+import { PrismaErrorFilter } from './interface/http/filters/prisma-error.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,7 +14,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  app.useGlobalFilters(new DomainErrorFilter());
+  app.useGlobalFilters(new DomainErrorFilter(), new PrismaErrorFilter());
   app.enableCors({
     origin: process.env.CORS_ORIGIN?.split(',') ?? true,
   });
