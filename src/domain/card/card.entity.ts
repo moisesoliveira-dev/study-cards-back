@@ -8,6 +8,7 @@ export interface CardProps {
   topicId: string | null;
   front: string;
   back: string;
+  document: string | null;
   hint: string | null;
   tag: string;
   status: CardStatus;
@@ -26,6 +27,7 @@ export class Card {
     topicId?: string | null;
     front: string;
     back: string;
+    document?: string | null;
     hint?: string | null;
     tag?: string;
     status?: CardStatus;
@@ -41,6 +43,7 @@ export class Card {
       topicId: input.topicId ?? null,
       front: input.front.trim(),
       back: input.back.trim(),
+      document: input.document?.trim() || null,
       hint: input.hint?.trim() || null,
       tag: input.tag?.trim() || 'Conceito',
       status: input.status ?? 'NEW',
@@ -63,6 +66,7 @@ export class Card {
   update(input: {
     front?: string;
     back?: string;
+    document?: string | null;
     hint?: string | null;
     tag?: string;
     status?: CardStatus;
@@ -75,6 +79,9 @@ export class Card {
 
     if (input.front !== undefined) this.props.front = input.front.trim();
     if (input.back !== undefined) this.props.back = input.back.trim();
+    if (input.document !== undefined) {
+      this.props.document = input.document?.trim() || null;
+    }
     if (input.hint !== undefined) this.props.hint = input.hint?.trim() || null;
     if (input.tag !== undefined) this.props.tag = input.tag.trim() || 'Conceito';
     if (input.status !== undefined) this.props.status = input.status;
@@ -111,6 +118,9 @@ export class Card {
   }
   get back() {
     return this.props.back;
+  }
+  get document() {
+    return this.props.document;
   }
   get hint() {
     return this.props.hint;

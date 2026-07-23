@@ -38,6 +38,10 @@ export class CreateCardDto {
   tag?: string;
 
   @IsOptional()
+  @IsString()
+  document?: string | null;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   position?: number;
@@ -53,6 +57,10 @@ export class UpdateCardDto {
   @IsString()
   @MinLength(1)
   back?: string;
+
+  @IsOptional()
+  @IsString()
+  document?: string | null;
 
   @IsOptional()
   @IsString()

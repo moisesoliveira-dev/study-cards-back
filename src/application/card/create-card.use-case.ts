@@ -18,6 +18,7 @@ export class CreateCardUseCase {
       topicId?: string | null;
       front: string;
       back: string;
+      document?: string | null;
       hint?: string | null;
       tag?: string;
       position?: number;
@@ -66,6 +67,7 @@ export class CreateCardUseCase {
       topicId,
       front: input.front,
       back: input.back,
+      document: input.document,
       hint: input.hint?.trim() || null,
       tag: input.tag,
       position,

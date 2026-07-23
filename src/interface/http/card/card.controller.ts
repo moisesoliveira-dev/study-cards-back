@@ -104,6 +104,7 @@ export class CardController {
       topicId: card.topicId,
       front: card.front,
       back: card.back,
+      document: card.document,
       hint: card.hint,
       tag: card.tag,
       status: card.status,

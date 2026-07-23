@@ -15,6 +15,7 @@ export class UpdateCardUseCase {
     input: {
       front?: string;
       back?: string;
+      document?: string | null;
       hint?: string | null;
       tag?: string;
       status?: CardStatus;
@@ -37,6 +38,8 @@ export class UpdateCardUseCase {
     card.update({
       front: input.front,
       back: input.back,
+      document:
+        input.document === undefined ? undefined : input.document?.trim() || null,
       hint:
         input.hint === undefined ? undefined : input.hint?.trim() || null,
       tag: input.tag,

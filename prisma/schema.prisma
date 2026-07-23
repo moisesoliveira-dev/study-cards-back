@@ -67,6 +67,7 @@ model Card {
   topicId   String?
   front     String
   back      String
+  document  String?    @db.Text
   hint      String?
   tag       String     @default("Conceito")
   status    CardStatus @default(NEW)
