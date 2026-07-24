@@ -5,6 +5,7 @@ import { SubjectController } from './subject/subject.controller';
 import { TopicController } from './topic/topic.controller';
 import { CardController } from './card/card.controller';
 import { FlowController } from './flow/flow.controller';
+import { PdfLibraryController } from './pdf-library/pdf-library.controller';
 import { HealthController } from './health/health.controller';
 import { AuthController } from './auth/auth.controller';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -50,6 +51,7 @@ import { UserRepository } from '../../domain/user/user.repository';
 import { FlowBoardRepository } from '../../domain/flow/flow-board.repository';
 import { JwtService } from '@nestjs/jwt';
 import { TokenSigner } from '../../application/auth/register-user.use-case';
+import { PdfLibraryService } from '../../application/pdf-library/pdf-library.service';
 
 @Module({
   imports: [
@@ -71,9 +73,11 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
     TopicController,
     CardController,
     FlowController,
+    PdfLibraryController,
   ],
   providers: [
     JwtAuthGuard,
+    PdfLibraryService,
     {
       provide: RegisterUserUseCase,
       useFactory: (users: UserRepository, jwt: JwtService) => {

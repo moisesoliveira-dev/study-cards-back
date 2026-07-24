@@ -23,9 +23,48 @@ model User {
   updatedAt    DateTime    @updatedAt
   subjects     Subject[]
   flows        FlowBoard[]
+  pdfGroups    PdfGroup[]
+  pdfDocuments PdfDocument[]
 
   @@index([email])
   @@index([username])
+}
+
+model PdfGroup {
+  id          String        @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  color       String        @default("#7C5CFC")
+  position    Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents   PdfDocument[]
+
+  @@index([userId])
+  @@index([userId, position])
+}
+
+model PdfDocument {
+  id           String    @id @default(cuid())
+  userId       String
+  groupId      String?
+  title        String
+  originalName String
+  storageName  String    @unique
+  mimeType     String    @default("application/pdf")
+  sizeBytes    Int
+  favorite     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group        PdfGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([groupId])
+  @@index([userId, groupId])
+  @@index([userId, favorite])
 }
 
 model Subject {

@@ -52,8 +52,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV PDF_STORAGE_PATH=/app/storage/pdfs
 
 RUN addgroup -S nestjs && adduser -S nestjs -G nestjs
+RUN mkdir -p /app/storage/pdfs && chown -R nestjs:nestjs /app/storage
 
 COPY --from=build --chown=nestjs:nestjs /app/dist ./dist
 COPY --from=build --chown=nestjs:nestjs /app/node_modules ./node_modules
