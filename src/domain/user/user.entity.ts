@@ -1,6 +1,7 @@
 export interface UserProps {
   id: string;
   email: string;
+  username: string;
   passwordHash: string;
   name: string | null;
   createdAt: Date;
@@ -12,6 +13,7 @@ export class User {
 
   static create(input: {
     email: string;
+    username: string;
     passwordHash: string;
     name?: string | null;
   }): User {
@@ -19,6 +21,7 @@ export class User {
     return new User({
       id: crypto.randomUUID(),
       email: input.email.toLowerCase().trim(),
+      username: input.username.toLowerCase().trim(),
       passwordHash: input.passwordHash,
       name: input.name?.trim() || null,
       createdAt: now,
@@ -30,12 +33,19 @@ export class User {
     return new User({ ...props });
   }
 
-  updateProfile(input: { name?: string | null; email?: string }): void {
+  updateProfile(input: {
+    name?: string | null;
+    email?: string;
+    username?: string;
+  }): void {
     if (input.name !== undefined) {
       this.props.name = input.name?.trim() || null;
     }
     if (input.email !== undefined) {
       this.props.email = input.email.toLowerCase().trim();
+    }
+    if (input.username !== undefined) {
+      this.props.username = input.username.toLowerCase().trim();
     }
     this.props.updatedAt = new Date();
   }
@@ -51,6 +61,10 @@ export class User {
 
   get email(): string {
     return this.props.email;
+  }
+
+  get username(): string {
+    return this.props.username;
   }
 
   get passwordHash(): string {

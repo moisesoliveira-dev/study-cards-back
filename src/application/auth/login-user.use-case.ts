@@ -1,10 +1,12 @@
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../../domain/user/user.repository';
 import { DomainError } from '../../domain/shared/domain.error';
+import { normalizeUsername } from '../../domain/user/username';
 import {
   AuthResult,
   AuthTokenPayload,
   TokenSigner,
+  toAuthUserView,
 } from './register-user.use-case';
 
 export class LoginUserUseCase {
@@ -14,22 +16,25 @@ export class LoginUserUseCase {
   ) {}
 
   async execute(input: {
-    email: string;
+    login: string;
     password: string;
   }): Promise<AuthResult> {
-    const email = input.email?.trim().toLowerCase();
-    if (!email || !input.password) {
+    const login = input.login?.trim().toLowerCase();
+    if (!login || !input.password) {
       throw new DomainError(
         'INVALID_CREDENTIALS',
-        'E-mail ou senha inválidos',
+        'Usuário/e-mail ou senha inválidos',
       );
     }
 
-    const user = await this.users.findByEmail(email);
+    const user = login.includes('@')
+      ? await this.users.findByEmail(login)
+      : await this.users.findByUsername(normalizeUsername(login));
+
     if (!user) {
       throw new DomainError(
         'INVALID_CREDENTIALS',
-        'E-mail ou senha inválidos',
+        'Usuário/e-mail ou senha inválidos',
       );
     }
 
@@ -37,7 +42,7 @@ export class LoginUserUseCase {
     if (!valid) {
       throw new DomainError(
         'INVALID_CREDENTIALS',
-        'E-mail ou senha inválidos',
+        'Usuário/e-mail ou senha inválidos',
       );
     }
 
@@ -46,11 +51,7 @@ export class LoginUserUseCase {
 
     return {
       accessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      },
+      user: toAuthUserView(user),
     };
   }
 }

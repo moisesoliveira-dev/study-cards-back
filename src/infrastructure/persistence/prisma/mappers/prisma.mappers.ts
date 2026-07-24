@@ -14,6 +14,7 @@ export class UserMapper {
     return User.reconstitute({
       id: row.id,
       email: row.email,
+      username: row.username,
       passwordHash: row.passwordHash,
       name: row.name,
       createdAt: row.createdAt,
@@ -25,6 +26,7 @@ export class UserMapper {
     return {
       id: user.id,
       email: user.email,
+      username: user.username,
       passwordHash: user.passwordHash,
       name: user.name,
       createdAt: user.createdAt,

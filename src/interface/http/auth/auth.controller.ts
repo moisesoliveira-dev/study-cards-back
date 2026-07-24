@@ -59,6 +59,7 @@ export class AuthController {
     return this.updateCurrentUser.execute(user.id, {
       name: dto.name,
       email: dto.email,
+      username: dto.username,
     });
   }
 

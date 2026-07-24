@@ -1,5 +1,6 @@
 import { UserRepository } from '../../domain/user/user.repository';
 import { DomainError } from '../../domain/shared/domain.error';
+import { toAuthUserView } from './register-user.use-case';
 
 export class GetCurrentUserUseCase {
   constructor(private readonly users: UserRepository) {}
@@ -9,10 +10,6 @@ export class GetCurrentUserUseCase {
     if (!user) {
       throw new DomainError('USER_NOT_FOUND', 'Usuário não encontrado');
     }
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    };
+    return toAuthUserView(user);
   }
 }

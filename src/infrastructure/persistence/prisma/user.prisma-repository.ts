@@ -15,6 +15,7 @@ export class UserPrismaRepository implements UserRepository {
       create: data,
       update: {
         email: data.email,
+        username: data.username,
         passwordHash: data.passwordHash,
         name: data.name,
         updatedAt: data.updatedAt,
@@ -31,6 +32,13 @@ export class UserPrismaRepository implements UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     const row = await this.prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },
+    });
+    return row ? UserMapper.toDomain(row) : null;
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    const row = await this.prisma.user.findUnique({
+      where: { username: username.toLowerCase().trim() },
     });
     return row ? UserMapper.toDomain(row) : null;
   }

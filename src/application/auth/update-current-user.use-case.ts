@@ -1,12 +1,14 @@
 import { UserRepository } from '../../domain/user/user.repository';
 import { DomainError } from '../../domain/shared/domain.error';
+import { assertValidUsername } from '../../domain/user/username';
+import { toAuthUserView } from './register-user.use-case';
 
 export class UpdateCurrentUserUseCase {
   constructor(private readonly users: UserRepository) {}
 
   async execute(
     userId: string,
-    input: { name?: string | null; email?: string },
+    input: { name?: string | null; email?: string; username?: string },
   ) {
     const user = await this.users.findById(userId);
     if (!user) {
@@ -27,16 +29,27 @@ export class UpdateCurrentUserUseCase {
       }
     }
 
+    let nextUsername: string | undefined;
+    if (input.username !== undefined) {
+      nextUsername = assertValidUsername(input.username);
+      if (nextUsername !== user.username) {
+        const taken = await this.users.findByUsername(nextUsername);
+        if (taken && taken.id !== user.id) {
+          throw new DomainError(
+            'USERNAME_IN_USE',
+            'Este nome de usuário já está em uso',
+          );
+        }
+      }
+    }
+
     user.updateProfile({
       name: input.name,
       email: nextEmail,
+      username: nextUsername,
     });
 
     const saved = await this.users.save(user);
-    return {
-      id: saved.id,
-      email: saved.email,
-      name: saved.name,
-    };
+    return toAuthUserView(saved);
   }
 }
