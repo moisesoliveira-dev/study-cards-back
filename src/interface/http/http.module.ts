@@ -245,14 +245,15 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
     },
     {
       provide: GetFlowBoardUseCase,
-      useFactory: (flows: FlowBoardRepository) => new GetFlowBoardUseCase(flows),
-      inject: [FLOW_BOARD_REPOSITORY],
+      useFactory: (flows: FlowBoardRepository, cards: CardRepository) =>
+        new GetFlowBoardUseCase(flows, cards),
+      inject: [FLOW_BOARD_REPOSITORY, CARD_REPOSITORY],
     },
     {
       provide: UpdateFlowBoardUseCase,
-      useFactory: (flows: FlowBoardRepository) =>
-        new UpdateFlowBoardUseCase(flows),
-      inject: [FLOW_BOARD_REPOSITORY],
+      useFactory: (flows: FlowBoardRepository, cards: CardRepository) =>
+        new UpdateFlowBoardUseCase(flows, cards),
+      inject: [FLOW_BOARD_REPOSITORY, CARD_REPOSITORY],
     },
     {
       provide: DeleteFlowBoardUseCase,
