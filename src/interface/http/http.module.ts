@@ -194,9 +194,12 @@ import { TokenSigner } from '../../application/auth/register-user.use-case';
     },
     {
       provide: DeleteCardUseCase,
-      useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
-        new DeleteCardUseCase(cards, subjects),
-      inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
+      useFactory: (
+        cards: CardRepository,
+        subjects: SubjectRepository,
+        flows: FlowBoardRepository,
+      ) => new DeleteCardUseCase(cards, subjects, flows),
+      inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY, FLOW_BOARD_REPOSITORY],
     },
     {
       provide: MergeCardsUseCase,
