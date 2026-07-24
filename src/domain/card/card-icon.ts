@@ -1,33 +1,11 @@
 import { DomainError } from '../shared/domain.error';
 
-/** Curated icon keys shared with the frontend picker. */
-export const CARD_ICON_KEYS = [
-  'bulb',
-  'code',
-  'server',
-  'cloud',
-  'database',
-  'network',
-  'shield',
-  'flash',
-  'book',
-  'brain',
-  'layers',
-  'globe',
-  'key',
-  'rocket',
-  'terminal',
-  'hardware',
-  'link',
-  'puzzle',
-  'map',
-  'flag',
-] as const;
+const ICON_KEY_RE = /^[a-z0-9_]{1,40}$/;
 
-export type CardIconKey = (typeof CARD_ICON_KEYS)[number];
-
-const ALLOWED = new Set<string>(CARD_ICON_KEYS);
-
+/**
+ * Accepts any stable icon key (frontend owns the catalog).
+ * Empty / null clears the icon.
+ */
 export function normalizeCardIcon(
   raw: string | null | undefined,
 ): string | null {
@@ -37,8 +15,8 @@ export function normalizeCardIcon(
   if (raw === null) return null;
   const icon = raw.trim().toLowerCase();
   if (!icon) return null;
-  if (!ALLOWED.has(icon)) {
-    throw new DomainError('INVALID_ICON', 'Ícone não suportado');
+  if (!ICON_KEY_RE.test(icon)) {
+    throw new DomainError('INVALID_ICON', 'Ícone inválido');
   }
   return icon;
 }
