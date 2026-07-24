@@ -1,4 +1,5 @@
 import { DomainError } from '../shared/domain.error';
+import { normalizeOptionalCardIcon } from './card-icon';
 
 export type CardStatus = 'NEW' | 'REVIEW' | 'KNOWN';
 
@@ -10,6 +11,7 @@ export interface CardProps {
   back: string;
   document: string | null;
   hint: string | null;
+  icon: string | null;
   tag: string;
   status: CardStatus;
   position: number;
@@ -29,6 +31,7 @@ export class Card {
     back: string;
     document?: string | null;
     hint?: string | null;
+    icon?: string | null;
     tag?: string;
     status?: CardStatus;
     position?: number;
@@ -36,6 +39,10 @@ export class Card {
     Card.validateFrontAndBack(input.front, input.back);
 
     const now = new Date();
+    const icon =
+      input.icon === undefined
+        ? null
+        : (normalizeOptionalCardIcon(input.icon) ?? null);
 
     return new Card({
       id: crypto.randomUUID(),
@@ -45,6 +52,7 @@ export class Card {
       back: input.back.trim(),
       document: input.document?.trim() || null,
       hint: input.hint?.trim() || null,
+      icon,
       tag: input.tag?.trim() || 'Conceito',
       status: input.status ?? 'NEW',
       position: input.position ?? 0,
@@ -68,6 +76,7 @@ export class Card {
     back?: string;
     document?: string | null;
     hint?: string | null;
+    icon?: string | null;
     tag?: string;
     status?: CardStatus;
     position?: number;
@@ -83,6 +92,9 @@ export class Card {
       this.props.document = input.document?.trim() || null;
     }
     if (input.hint !== undefined) this.props.hint = input.hint?.trim() || null;
+    if (input.icon !== undefined) {
+      this.props.icon = normalizeOptionalCardIcon(input.icon) ?? null;
+    }
     if (input.tag !== undefined) this.props.tag = input.tag.trim() || 'Conceito';
     if (input.status !== undefined) this.props.status = input.status;
     if (input.position !== undefined) this.props.position = input.position;
@@ -124,6 +136,9 @@ export class Card {
   }
   get hint() {
     return this.props.hint;
+  }
+  get icon() {
+    return this.props.icon;
   }
   get tag() {
     return this.props.tag;

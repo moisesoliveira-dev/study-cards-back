@@ -35,6 +35,10 @@ export class CreateCardDto {
 
   @IsOptional()
   @IsString()
+  icon?: string | null;
+
+  @IsOptional()
+  @IsString()
   tag?: string;
 
   @IsOptional()
@@ -65,6 +69,10 @@ export class UpdateCardDto {
   @IsOptional()
   @IsString()
   hint?: string | null;
+
+  @IsOptional()
+  @IsString()
+  icon?: string | null;
 
   @IsOptional()
   @IsString()
@@ -105,6 +113,10 @@ export class MergeCardsDto {
   @IsOptional()
   @IsString()
   hint?: string;
+
+  @IsOptional()
+  @IsString()
+  icon?: string | null;
 
   @IsOptional()
   @IsString()

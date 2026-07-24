@@ -130,6 +130,7 @@ export class CardController {
       back: card.back,
       document: card.document,
       hint: card.hint,
+      icon: card.icon,
       tag: card.tag,
       status: card.status,
       position: card.position,

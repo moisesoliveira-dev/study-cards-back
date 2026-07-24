@@ -34,6 +34,7 @@ export class CardPrismaRepository implements CardRepository {
         back: data.back,
         document: data.document,
         hint: data.hint,
+        icon: data.icon,
         tag: data.tag,
         status: data.status,
         position: data.position,
