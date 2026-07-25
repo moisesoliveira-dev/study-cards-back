@@ -1,22 +1,20 @@
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
-import { MailService } from '../../infrastructure/mail/mail.service';
+import { User } from '../../domain/user/user.entity';
 import { UserRepository } from '../../domain/user/user.repository';
 import { assertValidUsername } from '../../domain/user/username';
 import { assertStrongPassword } from '../../domain/user/password-policy';
 import { DomainError } from '../../domain/shared/domain.error';
 import {
-  generateVerificationCode,
-  hashSecret,
-} from './auth-secrets';
-
-const CODE_TTL_MS = 15 * 60 * 1000;
+  AuthResult,
+  AuthTokenPayload,
+  TokenSigner,
+  toAuthUserView,
+} from './auth-types';
 
 export class RegisterUserUseCase {
   constructor(
     private readonly users: UserRepository,
-    private readonly prisma: PrismaService,
-    private readonly mail: MailService,
+    private readonly tokenSigner: TokenSigner,
   ) {}
 
   async execute(input: {
@@ -24,7 +22,7 @@ export class RegisterUserUseCase {
     username: string;
     password: string;
     name?: string | null;
-  }): Promise<{ ok: true; email: string }> {
+  }): Promise<AuthResult> {
     const email = input.email?.trim().toLowerCase();
     if (!email || !email.includes('@')) {
       throw new DomainError('INVALID_EMAIL', 'Informe um e-mail válido');
@@ -46,47 +44,21 @@ export class RegisterUserUseCase {
       );
     }
 
-    const pendingUsername = await this.prisma.pendingRegistration.findFirst({
-      where: {
-        username,
-        email: { not: email },
-        expiresAt: { gt: new Date() },
-      },
-    });
-    if (pendingUsername) {
-      throw new DomainError(
-        'USERNAME_IN_USE',
-        'Este nome de usuário já está em uso',
-      );
-    }
-
     const passwordHash = await bcrypt.hash(input.password, 10);
-    const code = generateVerificationCode();
-    const codeHash = hashSecret(code);
-    const expiresAt = new Date(Date.now() + CODE_TTL_MS);
-    const name = input.name?.trim() || null;
-
-    await this.prisma.pendingRegistration.upsert({
-      where: { email },
-      create: {
-        email,
-        username,
-        passwordHash,
-        name,
-        codeHash,
-        expiresAt,
-      },
-      update: {
-        username,
-        passwordHash,
-        name,
-        codeHash,
-        expiresAt,
-      },
+    const user = User.create({
+      email,
+      username,
+      passwordHash,
+      name: input.name,
     });
+    const saved = await this.users.save(user);
 
-    await this.mail.sendVerificationCode({ to: email, username, code });
+    const payload: AuthTokenPayload = { sub: saved.id, email: saved.email };
+    const accessToken = await this.tokenSigner.sign(payload);
 
-    return { ok: true, email };
+    return {
+      accessToken,
+      user: toAuthUserView(saved),
+    };
   }
 }

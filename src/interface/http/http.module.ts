@@ -33,16 +33,10 @@ import { GetFlowBoardUseCase } from '../../application/flow/get-flow-board.use-c
 import { UpdateFlowBoardUseCase } from '../../application/flow/update-flow-board.use-case';
 import { DeleteFlowBoardUseCase } from '../../application/flow/delete-flow-board.use-case';
 import { RegisterUserUseCase } from '../../application/auth/register-user.use-case';
-import { ConfirmRegistrationUseCase } from '../../application/auth/confirm-registration.use-case';
-import { ResendVerificationCodeUseCase } from '../../application/auth/resend-verification-code.use-case';
 import { LoginUserUseCase } from '../../application/auth/login-user.use-case';
-import { ForgotPasswordUseCase } from '../../application/auth/forgot-password.use-case';
-import { ResetPasswordUseCase } from '../../application/auth/reset-password.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/get-current-user.use-case';
 import { UpdateCurrentUserUseCase } from '../../application/auth/update-current-user.use-case';
 import { ChangePasswordUseCase } from '../../application/auth/change-password.use-case';
-import { MailService } from '../../infrastructure/mail/mail.service';
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
 import {
   SUBJECT_REPOSITORY,
   TOPIC_REPOSITORY,
@@ -96,30 +90,11 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
   providers: [
     JwtAuthGuard,
     PdfLibraryService,
-    MailService,
     {
       provide: RegisterUserUseCase,
-      useFactory: (
-        users: UserRepository,
-        prisma: PrismaService,
-        mail: MailService,
-      ) => new RegisterUserUseCase(users, prisma, mail),
-      inject: [USER_REPOSITORY, PrismaService, MailService],
-    },
-    {
-      provide: ConfirmRegistrationUseCase,
-      useFactory: (
-        users: UserRepository,
-        prisma: PrismaService,
-        jwt: JwtService,
-      ) => new ConfirmRegistrationUseCase(users, prisma, createTokenSigner(jwt)),
-      inject: [USER_REPOSITORY, PrismaService, JwtService],
-    },
-    {
-      provide: ResendVerificationCodeUseCase,
-      useFactory: (prisma: PrismaService, mail: MailService) =>
-        new ResendVerificationCodeUseCase(prisma, mail),
-      inject: [PrismaService, MailService],
+      useFactory: (users: UserRepository, jwt: JwtService) =>
+        new RegisterUserUseCase(users, createTokenSigner(jwt)),
+      inject: [USER_REPOSITORY, JwtService],
     },
     {
       provide: LoginUserUseCase,
@@ -132,21 +107,6 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
           Number(config.get('JWT_EXPIRES_SECONDS')) || 60 * 60 * 24,
         ),
       inject: [USER_REPOSITORY, JwtService, ConfigService],
-    },
-    {
-      provide: ForgotPasswordUseCase,
-      useFactory: (
-        users: UserRepository,
-        prisma: PrismaService,
-        mail: MailService,
-      ) => new ForgotPasswordUseCase(users, prisma, mail),
-      inject: [USER_REPOSITORY, PrismaService, MailService],
-    },
-    {
-      provide: ResetPasswordUseCase,
-      useFactory: (users: UserRepository, prisma: PrismaService) =>
-        new ResetPasswordUseCase(users, prisma),
-      inject: [USER_REPOSITORY, PrismaService],
     },
     {
       provide: GetCurrentUserUseCase,

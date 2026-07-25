@@ -28,20 +28,6 @@ export class RegisterDto {
   name?: string;
 }
 
-export class VerifyEmailDto {
-  @IsEmail()
-  email!: string;
-
-  @IsString()
-  @MinLength(6)
-  code!: string;
-}
-
-export class ResendCodeDto {
-  @IsEmail()
-  email!: string;
-}
-
 export class LoginDto {
   @IsString()
   @MinLength(1)
@@ -54,21 +40,6 @@ export class LoginDto {
   @IsOptional()
   @IsBoolean()
   rememberMe?: boolean;
-}
-
-export class ForgotPasswordDto {
-  @IsEmail()
-  email!: string;
-}
-
-export class ResetPasswordDto {
-  @IsString()
-  @MinLength(1)
-  token!: string;
-
-  @IsString()
-  @MinLength(8)
-  password!: string;
 }
 
 export class UpdateProfileDto {
