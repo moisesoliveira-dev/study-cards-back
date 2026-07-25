@@ -47,21 +47,19 @@ model PdfGroup {
 }
 
 model PdfDocument {
-  id               String    @id @default(cuid())
-  userId           String
-  groupId          String?
-  title            String
-  originalName     String
-  storageName      String    @unique
-  mimeType         String    @default("application/pdf")
-  sizeBytes        Int
-  coverStorageName String?
-  coverMimeType    String?
-  favorite         Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group            PdfGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  id           String    @id @default(cuid())
+  userId       String
+  groupId      String?
+  title        String
+  originalName String
+  storageName  String    @unique
+  mimeType     String    @default("application/pdf")
+  sizeBytes    Int
+  favorite     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group        PdfGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([groupId])
