@@ -17,7 +17,7 @@ import type { Response } from 'express';
 import { createReadStream } from 'fs';
 import {
   PdfLibraryService,
-  type UploadedPdf,
+  type UploadedFile as LibraryUploadedFile,
 } from '../../../application/pdf-library/pdf-library.service';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard, type AuthUser } from '../auth/jwt-auth.guard';
@@ -72,7 +72,7 @@ export class PdfLibraryController {
   )
   upload(
     @CurrentUser() user: AuthUser,
-    @UploadedFile() file: UploadedPdf | undefined,
+    @UploadedFile() file: LibraryUploadedFile | undefined,
     @Body() dto: UploadPdfDto,
   ) {
     return this.library.upload(user.id, file, dto);
@@ -87,6 +87,25 @@ export class PdfLibraryController {
     return this.library.updateDocument(user.id, id, dto);
   }
 
+  @Post('documents/:id/cover')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+    }),
+  )
+  setCover(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @UploadedFile() file: LibraryUploadedFile | undefined,
+  ) {
+    return this.library.setCover(user.id, id, file);
+  }
+
+  @Delete('documents/:id/cover')
+  removeCover(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.library.removeCover(user.id, id);
+  }
+
   @Get('documents/:id/file')
   async file(
     @CurrentUser() user: AuthUser,
@@ -99,6 +118,21 @@ export class PdfLibraryController {
       'Content-Disposition': `inline; filename*=UTF-8''${encodeURIComponent(result.document.originalName)}`,
       'Content-Length': String(result.document.sizeBytes),
       'Cache-Control': 'private, max-age=3600',
+    });
+    return new StreamableFile(createReadStream(result.path));
+  }
+
+  @Get('documents/:id/cover')
+  async cover(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.library.getCover(user.id, id);
+    response.set({
+      'Content-Type': result.mimeType,
+      'Content-Disposition': `inline; filename*=UTF-8''${encodeURIComponent(result.filename)}`,
+      'Cache-Control': 'private, max-age=86400',
     });
     return new StreamableFile(createReadStream(result.path));
   }
