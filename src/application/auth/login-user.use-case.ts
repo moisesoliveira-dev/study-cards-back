@@ -7,17 +7,23 @@ import {
   AuthTokenPayload,
   TokenSigner,
   toAuthUserView,
-} from './register-user.use-case';
+} from './auth-types';
+
+const DEFAULT_EXPIRES = 60 * 60 * 24; // 1 day
+const REMEMBER_EXPIRES = 60 * 60 * 24 * 30; // 30 days
 
 export class LoginUserUseCase {
   constructor(
     private readonly users: UserRepository,
     private readonly tokenSigner: TokenSigner,
+    private readonly rememberExpiresSeconds = REMEMBER_EXPIRES,
+    private readonly defaultExpiresSeconds = DEFAULT_EXPIRES,
   ) {}
 
   async execute(input: {
     login: string;
     password: string;
+    rememberMe?: boolean;
   }): Promise<AuthResult> {
     const login = input.login?.trim().toLowerCase();
     if (!login || !input.password) {
@@ -47,7 +53,12 @@ export class LoginUserUseCase {
     }
 
     const payload: AuthTokenPayload = { sub: user.id, email: user.email };
-    const accessToken = await this.tokenSigner.sign(payload);
+    const expiresInSeconds = input.rememberMe
+      ? this.rememberExpiresSeconds
+      : this.defaultExpiresSeconds;
+    const accessToken = await this.tokenSigner.sign(payload, {
+      expiresInSeconds,
+    });
 
     return {
       accessToken,

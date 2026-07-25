@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { AuthTokenPayload } from '../../../application/auth/register-user.use-case';
+import { AuthTokenPayload } from '../../../application/auth/auth-types';
 
 export type AuthUser = {
   id: string;

@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../../domain/user/user.repository';
 import { DomainError } from '../../domain/shared/domain.error';
+import { assertStrongPassword } from '../../domain/user/password-policy';
 
 export class ChangePasswordUseCase {
   constructor(private readonly users: UserRepository) {}
@@ -24,12 +25,7 @@ export class ChangePasswordUseCase {
       );
     }
 
-    if (newPassword.length < 6) {
-      throw new DomainError(
-        'WEAK_PASSWORD',
-        'A nova senha deve ter pelo menos 6 caracteres',
-      );
-    }
+    assertStrongPassword(newPassword);
 
     const matches = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!matches) {

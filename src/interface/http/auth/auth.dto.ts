@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsOptional,
   IsString,
@@ -19,12 +20,26 @@ export class RegisterDto {
   username!: string;
 
   @IsString()
-  @MinLength(6)
+  @MinLength(8)
   password!: string;
 
   @IsOptional()
   @IsString()
   name?: string;
+}
+
+export class VerifyEmailDto {
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @MinLength(6)
+  code!: string;
+}
+
+export class ResendCodeDto {
+  @IsEmail()
+  email!: string;
 }
 
 export class LoginDto {
@@ -34,6 +49,25 @@ export class LoginDto {
 
   @IsString()
   @MinLength(1)
+  password!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  rememberMe?: boolean;
+}
+
+export class ForgotPasswordDto {
+  @IsEmail()
+  email!: string;
+}
+
+export class ResetPasswordDto {
+  @IsString()
+  @MinLength(1)
+  token!: string;
+
+  @IsString()
+  @MinLength(8)
   password!: string;
 }
 
@@ -60,6 +94,6 @@ export class ChangePasswordDto {
   currentPassword!: string;
 
   @IsString()
-  @MinLength(6)
+  @MinLength(8)
   newPassword!: string;
 }

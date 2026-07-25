@@ -1,6 +1,6 @@
 import { UserRepository } from '../../domain/user/user.repository';
 import { DomainError } from '../../domain/shared/domain.error';
-import { toAuthUserView } from './register-user.use-case';
+import { toAuthUserView } from './auth-types';
 
 export class GetCurrentUserUseCase {
   constructor(private readonly users: UserRepository) {}

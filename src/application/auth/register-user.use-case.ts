@@ -1,43 +1,22 @@
 import * as bcrypt from 'bcrypt';
-import { User } from '../../domain/user/user.entity';
+import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
+import { MailService } from '../../infrastructure/mail/mail.service';
 import { UserRepository } from '../../domain/user/user.repository';
 import { assertValidUsername } from '../../domain/user/username';
+import { assertStrongPassword } from '../../domain/user/password-policy';
 import { DomainError } from '../../domain/shared/domain.error';
+import {
+  generateVerificationCode,
+  hashSecret,
+} from './auth-secrets';
 
-export type AuthTokenPayload = {
-  sub: string;
-  email: string;
-};
-
-export type AuthUserView = {
-  id: string;
-  email: string;
-  username: string;
-  name: string | null;
-};
-
-export type AuthResult = {
-  accessToken: string;
-  user: AuthUserView;
-};
-
-export type TokenSigner = {
-  sign(payload: AuthTokenPayload): Promise<string>;
-};
-
-export function toAuthUserView(user: User): AuthUserView {
-  return {
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    name: user.name,
-  };
-}
+const CODE_TTL_MS = 15 * 60 * 1000;
 
 export class RegisterUserUseCase {
   constructor(
     private readonly users: UserRepository,
-    private readonly tokenSigner: TokenSigner,
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
   ) {}
 
   async execute(input: {
@@ -45,21 +24,14 @@ export class RegisterUserUseCase {
     username: string;
     password: string;
     name?: string | null;
-  }): Promise<AuthResult> {
+  }): Promise<{ ok: true; email: string }> {
     const email = input.email?.trim().toLowerCase();
     if (!email || !email.includes('@')) {
       throw new DomainError('INVALID_EMAIL', 'Informe um e-mail válido');
     }
 
     const username = assertValidUsername(input.username ?? '');
-
-    const password = input.password ?? '';
-    if (password.length < 6) {
-      throw new DomainError(
-        'WEAK_PASSWORD',
-        'A senha deve ter pelo menos 6 caracteres',
-      );
-    }
+    assertStrongPassword(input.password ?? '');
 
     const existingEmail = await this.users.findByEmail(email);
     if (existingEmail) {
@@ -74,26 +46,47 @@ export class RegisterUserUseCase {
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = User.create({
-      email,
-      username,
-      passwordHash,
-      name: input.name,
+    const pendingUsername = await this.prisma.pendingRegistration.findFirst({
+      where: {
+        username,
+        email: { not: email },
+        expiresAt: { gt: new Date() },
+      },
     });
-    const saved = await this.users.save(user);
+    if (pendingUsername) {
+      throw new DomainError(
+        'USERNAME_IN_USE',
+        'Este nome de usuário já está em uso',
+      );
+    }
 
-    return this.toAuthResult(saved);
-  }
+    const passwordHash = await bcrypt.hash(input.password, 10);
+    const code = generateVerificationCode();
+    const codeHash = hashSecret(code);
+    const expiresAt = new Date(Date.now() + CODE_TTL_MS);
+    const name = input.name?.trim() || null;
 
-  private async toAuthResult(user: User): Promise<AuthResult> {
-    const accessToken = await this.tokenSigner.sign({
-      sub: user.id,
-      email: user.email,
+    await this.prisma.pendingRegistration.upsert({
+      where: { email },
+      create: {
+        email,
+        username,
+        passwordHash,
+        name,
+        codeHash,
+        expiresAt,
+      },
+      update: {
+        username,
+        passwordHash,
+        name,
+        codeHash,
+        expiresAt,
+      },
     });
-    return {
-      accessToken,
-      user: toAuthUserView(user),
-    };
+
+    await this.mail.sendVerificationCode({ to: email, username, code });
+
+    return { ok: true, email };
   }
 }
