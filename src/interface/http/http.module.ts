@@ -103,7 +103,7 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
           users,
           createTokenSigner(jwt),
           Number(config.get('JWT_REMEMBER_EXPIRES_SECONDS')) ||
-            60 * 60 * 24 * 30,
+            60 * 60 * 24 * 2,
           Number(config.get('JWT_EXPIRES_SECONDS')) || 60 * 60 * 24,
         ),
       inject: [USER_REPOSITORY, JwtService, ConfigService],
