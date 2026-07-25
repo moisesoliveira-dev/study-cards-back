@@ -4,6 +4,7 @@ export interface UserProps {
   username: string;
   passwordHash: string;
   name: string | null;
+  avatarPath: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +25,7 @@ export class User {
       username: input.username.toLowerCase().trim(),
       passwordHash: input.passwordHash,
       name: input.name?.trim() || null,
+      avatarPath: null,
       createdAt: now,
       updatedAt: now,
     });
@@ -50,6 +52,11 @@ export class User {
     this.props.updatedAt = new Date();
   }
 
+  setAvatarPath(avatarPath: string | null): void {
+    this.props.avatarPath = avatarPath;
+    this.props.updatedAt = new Date();
+  }
+
   changePasswordHash(passwordHash: string): void {
     this.props.passwordHash = passwordHash;
     this.props.updatedAt = new Date();
@@ -73,6 +80,10 @@ export class User {
 
   get name(): string | null {
     return this.props.name;
+  }
+
+  get avatarPath(): string | null {
+    return this.props.avatarPath;
   }
 
   get createdAt(): Date {

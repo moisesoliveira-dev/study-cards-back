@@ -17,6 +17,7 @@ export class UserMapper {
       username: row.username,
       passwordHash: row.passwordHash,
       name: row.name,
+      avatarPath: row.avatarPath,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });
@@ -29,6 +30,7 @@ export class UserMapper {
       username: user.username,
       passwordHash: user.passwordHash,
       name: user.name,
+      avatarPath: user.avatarPath,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

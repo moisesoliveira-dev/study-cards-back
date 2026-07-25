@@ -10,6 +10,8 @@ export type AuthUserView = {
   email: string;
   username: string;
   name: string | null;
+  hasAvatar: boolean;
+  updatedAt: string;
 };
 
 export type AuthResult = {
@@ -30,5 +32,7 @@ export function toAuthUserView(user: User): AuthUserView {
     email: user.email,
     username: user.username,
     name: user.name,
+    hasAvatar: Boolean(user.avatarPath),
+    updatedAt: user.updatedAt.toISOString(),
   };
 }

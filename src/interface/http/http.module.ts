@@ -37,6 +37,7 @@ import { LoginUserUseCase } from '../../application/auth/login-user.use-case';
 import { GetCurrentUserUseCase } from '../../application/auth/get-current-user.use-case';
 import { UpdateCurrentUserUseCase } from '../../application/auth/update-current-user.use-case';
 import { ChangePasswordUseCase } from '../../application/auth/change-password.use-case';
+import { AvatarService } from '../../application/auth/avatar.service';
 import {
   SUBJECT_REPOSITORY,
   TOPIC_REPOSITORY,
@@ -123,6 +124,12 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
       provide: ChangePasswordUseCase,
       useFactory: (users: UserRepository) => new ChangePasswordUseCase(users),
       inject: [USER_REPOSITORY],
+    },
+    {
+      provide: AvatarService,
+      useFactory: (users: UserRepository, config: ConfigService) =>
+        new AvatarService(users, config),
+      inject: [USER_REPOSITORY, ConfigService],
     },
     {
       provide: CreateSubjectUseCase,

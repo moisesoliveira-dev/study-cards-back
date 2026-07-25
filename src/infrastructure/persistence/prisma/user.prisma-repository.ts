@@ -18,6 +18,7 @@ export class UserPrismaRepository implements UserRepository {
         username: data.username,
         passwordHash: data.passwordHash,
         name: data.name,
+        avatarPath: data.avatarPath,
         updatedAt: data.updatedAt,
       },
     });

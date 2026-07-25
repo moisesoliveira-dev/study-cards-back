@@ -1,17 +1,29 @@
 import {
-  Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Patch,
   Post,
+  Res,
+  StreamableFile,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
+  Body,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
+import { createReadStream } from 'fs';
 import { RegisterUserUseCase } from '../../../application/auth/register-user.use-case';
 import { LoginUserUseCase } from '../../../application/auth/login-user.use-case';
 import { GetCurrentUserUseCase } from '../../../application/auth/get-current-user.use-case';
 import { UpdateCurrentUserUseCase } from '../../../application/auth/update-current-user.use-case';
 import { ChangePasswordUseCase } from '../../../application/auth/change-password.use-case';
+import {
+  AvatarService,
+  type UploadedAvatar,
+} from '../../../application/auth/avatar.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import type { AuthUser } from './jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
@@ -35,6 +47,8 @@ export class AuthController {
     private readonly updateCurrentUser: UpdateCurrentUserUseCase,
     @Inject(ChangePasswordUseCase)
     private readonly changePassword: ChangePasswordUseCase,
+    @Inject(AvatarService)
+    private readonly avatars: AvatarService,
   ) {}
 
   @Post('register')
@@ -61,6 +75,40 @@ export class AuthController {
       email: dto.email,
       username: dto.username,
     });
+  }
+
+  @Post('me/avatar')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 2 * 1024 * 1024, files: 1 },
+    }),
+  )
+  uploadAvatar(
+    @CurrentUser() user: AuthUser,
+    @UploadedFile() file: UploadedAvatar | undefined,
+  ) {
+    return this.avatars.upload(user.id, file);
+  }
+
+  @Delete('me/avatar')
+  @UseGuards(JwtAuthGuard)
+  removeAvatar(@CurrentUser() user: AuthUser) {
+    return this.avatars.remove(user.id);
+  }
+
+  @Get('me/avatar')
+  @UseGuards(JwtAuthGuard)
+  async getAvatar(
+    @CurrentUser() user: AuthUser,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.avatars.getFile(user.id);
+    response.set({
+      'Content-Type': result.contentType,
+      'Cache-Control': 'private, max-age=3600',
+    });
+    return new StreamableFile(createReadStream(result.absolutePath));
   }
 
   @Post('change-password')

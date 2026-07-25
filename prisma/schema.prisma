@@ -19,6 +19,7 @@ model User {
   username     String      @unique
   passwordHash String
   name         String?
+  avatarPath   String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   subjects     Subject[]
