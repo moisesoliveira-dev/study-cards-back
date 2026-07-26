@@ -21,6 +21,7 @@ export class CreateCardUseCase {
       document?: string | null;
       hint?: string | null;
       icon?: string | null;
+      color?: string | null;
       tag?: string;
       position?: number;
     },
@@ -71,6 +72,7 @@ export class CreateCardUseCase {
       document: input.document,
       hint: input.hint?.trim() || null,
       icon: input.icon,
+      color: input.color,
       tag: input.tag,
       position,
     });

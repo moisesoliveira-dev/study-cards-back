@@ -18,6 +18,7 @@ export class UpdateCardUseCase {
       document?: string | null;
       hint?: string | null;
       icon?: string | null;
+      color?: string | null;
       tag?: string;
       status?: CardStatus;
       position?: number;
@@ -44,6 +45,7 @@ export class UpdateCardUseCase {
       hint:
         input.hint === undefined ? undefined : input.hint?.trim() || null,
       icon: input.icon,
+      color: input.color,
       tag: input.tag,
       status: input.status,
       position: input.position,

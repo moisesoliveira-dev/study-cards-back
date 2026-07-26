@@ -132,6 +132,7 @@ model Card {
   document  String?    @db.Text
   hint      String?
   icon      String?    @db.Text
+  color     String?
   tag       String     @default("Conceito")
   status    CardStatus @default(NEW)
   position  Int        @default(0)

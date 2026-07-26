@@ -3,6 +3,28 @@ import { normalizeOptionalCardIcon } from './card-icon';
 
 export type CardStatus = 'NEW' | 'REVIEW' | 'KNOWN';
 
+const HEX_COLOR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+export function normalizeOptionalCardColor(
+  value: string | null | undefined,
+): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (!HEX_COLOR.test(trimmed)) {
+    throw new DomainError(
+      'CARD_COLOR_INVALID',
+      'Card color must be a hex value like #1D9E75',
+    );
+  }
+  if (trimmed.length === 4) {
+    const [, r, g, b] = trimmed;
+    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
+  }
+  return trimmed.toUpperCase();
+}
+
 export interface CardProps {
   id: string;
   subjectId: string;
@@ -12,6 +34,7 @@ export interface CardProps {
   document: string | null;
   hint: string | null;
   icon: string | null;
+  color: string | null;
   tag: string;
   status: CardStatus;
   position: number;
@@ -32,6 +55,7 @@ export class Card {
     document?: string | null;
     hint?: string | null;
     icon?: string | null;
+    color?: string | null;
     tag?: string;
     status?: CardStatus;
     position?: number;
@@ -43,6 +67,10 @@ export class Card {
       input.icon === undefined
         ? null
         : (normalizeOptionalCardIcon(input.icon) ?? null);
+    const color =
+      input.color === undefined
+        ? null
+        : (normalizeOptionalCardColor(input.color) ?? null);
 
     return new Card({
       id: crypto.randomUUID(),
@@ -53,6 +81,7 @@ export class Card {
       document: input.document?.trim() || null,
       hint: input.hint?.trim() || null,
       icon,
+      color,
       tag: input.tag?.trim() || 'Conceito',
       status: input.status ?? 'NEW',
       position: input.position ?? 0,
@@ -77,6 +106,7 @@ export class Card {
     document?: string | null;
     hint?: string | null;
     icon?: string | null;
+    color?: string | null;
     tag?: string;
     status?: CardStatus;
     position?: number;
@@ -94,6 +124,9 @@ export class Card {
     if (input.hint !== undefined) this.props.hint = input.hint?.trim() || null;
     if (input.icon !== undefined) {
       this.props.icon = normalizeOptionalCardIcon(input.icon) ?? null;
+    }
+    if (input.color !== undefined) {
+      this.props.color = normalizeOptionalCardColor(input.color) ?? null;
     }
     if (input.tag !== undefined) this.props.tag = input.tag.trim() || 'Conceito';
     if (input.status !== undefined) this.props.status = input.status;
@@ -139,6 +172,9 @@ export class Card {
   }
   get icon() {
     return this.props.icon;
+  }
+  get color() {
+    return this.props.color;
   }
   get tag() {
     return this.props.tag;

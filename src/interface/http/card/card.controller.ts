@@ -131,6 +131,7 @@ export class CardController {
       document: card.document,
       hint: card.hint,
       icon: card.icon,
+      color: card.color,
       tag: card.tag,
       status: card.status,
       position: card.position,

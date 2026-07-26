@@ -22,6 +22,7 @@ export class MergeCardsUseCase {
       document?: string | null;
       hint?: string | null;
       icon?: string | null;
+      color?: string | null;
       tag?: string;
     },
   ): Promise<Card> {
@@ -88,6 +89,7 @@ export class MergeCardsUseCase {
       document: input.document,
       hint: input.hint,
       icon: input.icon,
+      color: input.color,
       tag: input.tag ?? 'Síntese',
       status: 'NEW',
       position,
