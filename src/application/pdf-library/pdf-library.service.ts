@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { access, mkdir, rm, writeFile } from 'fs/promises';
+import { constants } from 'fs';
 import { resolve } from 'path';
 import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
 
@@ -122,7 +123,15 @@ export class PdfLibraryService {
 
   async getFile(userId: string, id: string) {
     const document = await this.requireDocument(userId, id);
-    return { document, path: this.filePath(document.storageName) };
+    const path = this.filePath(document.storageName);
+    try {
+      await access(path, constants.R_OK);
+    } catch {
+      throw new NotFoundException(
+        'Arquivo do PDF não está mais no servidor (sumiu após um redeploy sem volume). Exclua o item e envie o PDF de novo.',
+      );
+    }
+    return { document, path };
   }
 
   async deleteDocument(userId: string, id: string) {
