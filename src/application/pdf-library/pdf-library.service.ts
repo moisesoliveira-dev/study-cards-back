@@ -41,7 +41,18 @@ export class PdfLibraryService {
         orderBy: [{ favorite: 'desc' }, { updatedAt: 'desc' }],
       }),
     ]);
-    return { groups, documents };
+
+    const available = [];
+    for (const document of documents) {
+      if (await this.fileExists(document.storageName)) {
+        available.push({ ...document, fileAvailable: true });
+        continue;
+      }
+      // Arquivo sumiu da pasta → remove o cadastro órfão
+      await this.prisma.pdfDocument.delete({ where: { id: document.id } });
+    }
+
+    return { groups, documents: available };
   }
 
   async createGroup(
@@ -88,7 +99,7 @@ export class PdfLibraryService {
 
     const fallbackTitle = file.originalname.replace(/\.pdf$/i, '').trim();
     try {
-      return await this.prisma.pdfDocument.create({
+      const created = await this.prisma.pdfDocument.create({
         data: {
           userId,
           groupId: input.groupId || null,
@@ -99,6 +110,7 @@ export class PdfLibraryService {
           sizeBytes: file.size,
         },
       });
+      return { ...created, fileAvailable: true };
     } catch (error) {
       await rm(this.filePath(storageName), { force: true });
       throw error;
@@ -112,23 +124,26 @@ export class PdfLibraryService {
   ) {
     await this.requireDocument(userId, id);
     if (input.groupId) await this.requireGroup(userId, input.groupId);
-    return this.prisma.pdfDocument.update({
+    const updated = await this.prisma.pdfDocument.update({
       where: { id },
       data: {
         ...input,
         groupId: input.groupId === '' ? null : input.groupId,
       },
     });
+    return {
+      ...updated,
+      fileAvailable: await this.fileExists(updated.storageName),
+    };
   }
 
   async getFile(userId: string, id: string) {
     const document = await this.requireDocument(userId, id);
     const path = this.filePath(document.storageName);
-    try {
-      await access(path, constants.R_OK);
-    } catch {
+    if (!(await this.fileExists(document.storageName))) {
+      await this.prisma.pdfDocument.delete({ where: { id: document.id } });
       throw new NotFoundException(
-        'Arquivo do PDF não está mais no servidor (sumiu após um redeploy sem volume). Exclua o item e envie o PDF de novo.',
+        'Arquivo do PDF não está na pasta de armazenamento. O cadastro órfão foi removido — envie o PDF de novo.',
       );
     }
     return { document, path };
@@ -158,5 +173,14 @@ export class PdfLibraryService {
 
   private filePath(storageName: string) {
     return resolve(this.storageRoot, storageName);
+  }
+
+  private async fileExists(storageName: string) {
+    try {
+      await access(this.filePath(storageName), constants.R_OK);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
