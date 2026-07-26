@@ -19,7 +19,7 @@ export class CreateCardUseCase {
       front: string;
       back: string;
       document?: string | null;
-      hint?: string | null;
+      levelId?: string | null;
       icon?: string | null;
       color?: string | null;
       tag?: string;
@@ -70,7 +70,7 @@ export class CreateCardUseCase {
       front: input.front,
       back: input.back,
       document: input.document,
-      hint: input.hint?.trim() || null,
+      levelId: input.levelId?.trim() || null,
       icon: input.icon,
       color: input.color,
       tag: input.tag,

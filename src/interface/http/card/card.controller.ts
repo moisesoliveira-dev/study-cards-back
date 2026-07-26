@@ -129,7 +129,7 @@ export class CardController {
       front: card.front,
       back: card.back,
       document: card.document,
-      hint: card.hint,
+      levelId: card.levelId,
       icon: card.icon,
       color: card.color,
       tag: card.tag,

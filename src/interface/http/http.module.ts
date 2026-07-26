@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { SubjectController } from './subject/subject.controller';
 import { TopicController } from './topic/topic.controller';
 import { CardController } from './card/card.controller';
+import { CardLevelController } from './card-level/card-level.controller';
 import { FlowController } from './flow/flow.controller';
 import { PdfLibraryController } from './pdf-library/pdf-library.controller';
 import { HealthController } from './health/health.controller';
@@ -27,6 +28,9 @@ import { MergeCardsUseCase } from '../../application/card/merge-cards.use-case';
 import { MoveCardUseCase } from '../../application/card/move-card.use-case';
 import { GetCardUseCase } from '../../application/card/get-card.use-case';
 import { GetCardsByIdsUseCase } from '../../application/card/get-cards-by-ids.use-case';
+import { ListCardLevelsUseCase } from '../../application/card-level/list-card-levels.use-case';
+import { CreateCardLevelUseCase } from '../../application/card-level/create-card-level.use-case';
+import { UpdateCardLevelUseCase } from '../../application/card-level/update-card-level.use-case';
 import { CreateFlowBoardUseCase } from '../../application/flow/create-flow-board.use-case';
 import { ListFlowBoardsUseCase } from '../../application/flow/list-flow-boards.use-case';
 import { GetFlowBoardUseCase } from '../../application/flow/get-flow-board.use-case';
@@ -42,12 +46,14 @@ import {
   SUBJECT_REPOSITORY,
   TOPIC_REPOSITORY,
   CARD_REPOSITORY,
+  CARD_LEVEL_REPOSITORY,
   USER_REPOSITORY,
   FLOW_BOARD_REPOSITORY,
 } from '../../domain/tokens';
 import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { CardRepository } from '../../domain/card/card.repository';
+import { CardLevelRepository } from '../../domain/card/card-level.repository';
 import { UserRepository } from '../../domain/user/user.repository';
 import { FlowBoardRepository } from '../../domain/flow/flow-board.repository';
 import { JwtService } from '@nestjs/jwt';
@@ -85,6 +91,7 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
     SubjectController,
     TopicController,
     CardController,
+    CardLevelController,
     FlowController,
     PdfLibraryController,
   ],
@@ -251,6 +258,24 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
       useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
         new GetCardsByIdsUseCase(cards, subjects),
       inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: ListCardLevelsUseCase,
+      useFactory: (levels: CardLevelRepository) =>
+        new ListCardLevelsUseCase(levels),
+      inject: [CARD_LEVEL_REPOSITORY],
+    },
+    {
+      provide: CreateCardLevelUseCase,
+      useFactory: (levels: CardLevelRepository) =>
+        new CreateCardLevelUseCase(levels),
+      inject: [CARD_LEVEL_REPOSITORY],
+    },
+    {
+      provide: UpdateCardLevelUseCase,
+      useFactory: (levels: CardLevelRepository) =>
+        new UpdateCardLevelUseCase(levels),
+      inject: [CARD_LEVEL_REPOSITORY],
     },
     {
       provide: CreateFlowBoardUseCase,

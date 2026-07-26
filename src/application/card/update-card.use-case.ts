@@ -16,7 +16,7 @@ export class UpdateCardUseCase {
       front?: string;
       back?: string;
       document?: string | null;
-      hint?: string | null;
+      levelId?: string | null;
       icon?: string | null;
       color?: string | null;
       tag?: string;
@@ -42,8 +42,8 @@ export class UpdateCardUseCase {
       back: input.back,
       document:
         input.document === undefined ? undefined : input.document?.trim() || null,
-      hint:
-        input.hint === undefined ? undefined : input.hint?.trim() || null,
+      levelId:
+        input.levelId === undefined ? undefined : input.levelId?.trim() || null,
       icon: input.icon,
       color: input.color,
       tag: input.tag,

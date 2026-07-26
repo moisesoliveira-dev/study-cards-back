@@ -32,7 +32,7 @@ export interface CardProps {
   front: string;
   back: string;
   document: string | null;
-  hint: string | null;
+  levelId: string | null;
   icon: string | null;
   color: string | null;
   tag: string;
@@ -53,7 +53,7 @@ export class Card {
     front: string;
     back: string;
     document?: string | null;
-    hint?: string | null;
+    levelId?: string | null;
     icon?: string | null;
     color?: string | null;
     tag?: string;
@@ -79,7 +79,7 @@ export class Card {
       front: input.front.trim(),
       back: input.back.trim(),
       document: input.document?.trim() || null,
-      hint: input.hint?.trim() || null,
+      levelId: input.levelId?.trim() || null,
       icon,
       color,
       tag: input.tag?.trim() || 'Conceito',
@@ -104,7 +104,7 @@ export class Card {
     front?: string;
     back?: string;
     document?: string | null;
-    hint?: string | null;
+    levelId?: string | null;
     icon?: string | null;
     color?: string | null;
     tag?: string;
@@ -121,7 +121,9 @@ export class Card {
     if (input.document !== undefined) {
       this.props.document = input.document?.trim() || null;
     }
-    if (input.hint !== undefined) this.props.hint = input.hint?.trim() || null;
+    if (input.levelId !== undefined) {
+      this.props.levelId = input.levelId?.trim() || null;
+    }
     if (input.icon !== undefined) {
       this.props.icon = normalizeOptionalCardIcon(input.icon) ?? null;
     }
@@ -167,8 +169,8 @@ export class Card {
   get document() {
     return this.props.document;
   }
-  get hint() {
-    return this.props.hint;
+  get levelId() {
+    return this.props.levelId;
   }
   get icon() {
     return this.props.icon;

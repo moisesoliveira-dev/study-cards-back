@@ -130,9 +130,9 @@ model Card {
   front     String
   back      String
   document  String?    @db.Text
-  hint      String?
   icon      String?    @db.Text
   color     String?
+  levelId   String?
   tag       String     @default("Conceito")
   status    CardStatus @default(NEW)
   position  Int        @default(0)
@@ -141,6 +141,7 @@ model Card {
 
   subject Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   topic   Topic?     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  level   CardLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   sources CardLink[] @relation("MergedFrom")
   usedIn  CardLink[] @relation("MergedInto")
 
@@ -148,6 +149,21 @@ model Card {
   @@index([topicId])
   @@index([subjectId, topicId])
   @@index([status])
+  @@index([levelId])
+}
+
+model CardLevel {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  color       String?
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  cards       Card[]
+
+  @@index([position])
 }
 
 model CardLink {

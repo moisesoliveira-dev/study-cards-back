@@ -31,7 +31,7 @@ export class CreateCardDto {
 
   @IsOptional()
   @IsString()
-  hint?: string;
+  levelId?: string;
 
   @IsOptional()
   @IsString()
@@ -72,7 +72,7 @@ export class UpdateCardDto {
 
   @IsOptional()
   @IsString()
-  hint?: string | null;
+  levelId?: string | null;
 
   @IsOptional()
   @IsString()
@@ -120,7 +120,7 @@ export class MergeCardsDto {
 
   @IsOptional()
   @IsString()
-  hint?: string;
+  levelId?: string;
 
   @IsOptional()
   @IsString()
