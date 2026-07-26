@@ -1,12 +1,12 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
-import { access, mkdir, rm, writeFile } from 'fs/promises';
-import { constants } from 'fs';
+import { mkdir, rm, stat, writeFile } from 'fs/promises';
 import { resolve } from 'path';
 import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
 
@@ -19,6 +19,7 @@ export type UploadedPdf = {
 
 @Injectable()
 export class PdfLibraryService {
+  private readonly logger = new Logger(PdfLibraryService.name);
   private readonly storageRoot: string;
 
   constructor(
@@ -28,6 +29,7 @@ export class PdfLibraryService {
     this.storageRoot = resolve(
       config.get<string>('PDF_STORAGE_PATH') ?? 'storage/pdfs',
     );
+    this.logger.log(`PDF storage: ${this.storageRoot}`);
   }
 
   async list(userId: string) {
@@ -42,14 +44,25 @@ export class PdfLibraryService {
       }),
     ]);
 
-    const available = [];
+    const available: Array<(typeof documents)[number] & { fileAvailable: true }> =
+      [];
+    const orphanIds: string[] = [];
+
     for (const document of documents) {
       if (await this.fileExists(document.storageName)) {
         available.push({ ...document, fileAvailable: true });
-        continue;
+      } else {
+        orphanIds.push(document.id);
       }
-      // Arquivo sumiu da pasta → remove o cadastro órfão
-      await this.prisma.pdfDocument.delete({ where: { id: document.id } });
+    }
+
+    if (orphanIds.length) {
+      await this.prisma.pdfDocument.deleteMany({
+        where: { id: { in: orphanIds }, userId },
+      });
+      this.logger.warn(
+        `Removed ${orphanIds.length} orphan PDF record(s) (file missing under ${this.storageRoot})`,
+      );
     }
 
     return { groups, documents: available };
@@ -172,13 +185,15 @@ export class PdfLibraryService {
   }
 
   private filePath(storageName: string) {
-    return resolve(this.storageRoot, storageName);
+    // impede path traversal (storageName deve ser só o nome do arquivo)
+    const safe = storageName.replace(/[/\\]/g, '');
+    return resolve(this.storageRoot, safe);
   }
 
   private async fileExists(storageName: string) {
     try {
-      await access(this.filePath(storageName), constants.R_OK);
-      return true;
+      const info = await stat(this.filePath(storageName));
+      return info.isFile() && info.size > 0;
     } catch {
       return false;
     }
