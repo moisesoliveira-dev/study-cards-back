@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CARD_LEVEL_REPOSITORY } from '../../domain/tokens';
-import { CardLevelRepository } from '../../domain/card/card-level.repository';
+import type { CardLevelRepository } from '../../domain/card/card-level.repository';
 
 @Injectable()
 export class UpdateCardLevelUseCase {

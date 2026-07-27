@@ -53,7 +53,7 @@ import {
 import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { CardRepository } from '../../domain/card/card.repository';
-import { CardLevelRepository } from '../../domain/card/card-level.repository';
+import type { CardLevelRepository } from '../../domain/card/card-level.repository';
 import { UserRepository } from '../../domain/user/user.repository';
 import { FlowBoardRepository } from '../../domain/flow/flow-board.repository';
 import { JwtService } from '@nestjs/jwt';
