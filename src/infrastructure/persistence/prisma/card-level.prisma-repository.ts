@@ -47,4 +47,8 @@ export class CardLevelPrismaRepository implements CardLevelRepository {
     });
     return CardLevel.reconstitute(row);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.cardLevel.delete({ where: { id } });
+  }
 }

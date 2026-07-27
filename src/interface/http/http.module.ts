@@ -31,6 +31,7 @@ import { GetCardsByIdsUseCase } from '../../application/card/get-cards-by-ids.us
 import { ListCardLevelsUseCase } from '../../application/card-level/list-card-levels.use-case';
 import { CreateCardLevelUseCase } from '../../application/card-level/create-card-level.use-case';
 import { UpdateCardLevelUseCase } from '../../application/card-level/update-card-level.use-case';
+import { DeleteCardLevelUseCase } from '../../application/card-level/delete-card-level.use-case';
 import { CreateFlowBoardUseCase } from '../../application/flow/create-flow-board.use-case';
 import { ListFlowBoardsUseCase } from '../../application/flow/list-flow-boards.use-case';
 import { GetFlowBoardUseCase } from '../../application/flow/get-flow-board.use-case';
@@ -275,6 +276,12 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
       provide: UpdateCardLevelUseCase,
       useFactory: (levels: CardLevelRepository) =>
         new UpdateCardLevelUseCase(levels),
+      inject: [CARD_LEVEL_REPOSITORY],
+    },
+    {
+      provide: DeleteCardLevelUseCase,
+      useFactory: (levels: CardLevelRepository) =>
+        new DeleteCardLevelUseCase(levels),
       inject: [CARD_LEVEL_REPOSITORY],
     },
     {

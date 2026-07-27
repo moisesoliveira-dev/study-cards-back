@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -12,6 +13,7 @@ import { IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
 import { ListCardLevelsUseCase } from '../../../application/card-level/list-card-levels.use-case';
 import { CreateCardLevelUseCase } from '../../../application/card-level/create-card-level.use-case';
 import { UpdateCardLevelUseCase } from '../../../application/card-level/update-card-level.use-case';
+import { DeleteCardLevelUseCase } from '../../../application/card-level/delete-card-level.use-case';
 import { CardLevel } from '../../../domain/card/card-level.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -68,6 +70,8 @@ export class CardLevelController {
     private readonly createLevel: CreateCardLevelUseCase,
     @Inject(UpdateCardLevelUseCase)
     private readonly updateLevel: UpdateCardLevelUseCase,
+    @Inject(DeleteCardLevelUseCase)
+    private readonly deleteLevel: DeleteCardLevelUseCase,
   ) {}
 
   @Get()
@@ -84,6 +88,12 @@ export class CardLevelController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateCardLevelDto) {
     return this.toResponse(await this.updateLevel.execute(id, dto));
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    await this.deleteLevel.execute(id);
+    return { ok: true };
   }
 
   private toResponse(level: CardLevel) {
