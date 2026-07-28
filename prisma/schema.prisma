@@ -139,17 +139,33 @@ model Card {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  subject Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  topic   Topic?     @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  level   CardLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-  sources CardLink[] @relation("MergedFrom")
-  usedIn  CardLink[] @relation("MergedInto")
+  subject Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topic   Topic?         @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  level   CardLevel?     @relation(fields: [levelId], references: [id], onDelete: SetNull)
+  sources CardLink[]     @relation("MergedFrom")
+  usedIn  CardLink[]     @relation("MergedInto")
+  notes   DocumentNote[]
 
   @@index([subjectId])
   @@index([topicId])
   @@index([subjectId, topicId])
   @@index([status])
   @@index([levelId])
+}
+
+model DocumentNote {
+  id        String   @id @default(cuid())
+  cardId    String
+  fromPos   Int
+  toPos     Int
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
+  @@index([cardId, fromPos, toPos])
 }
 
 model CardLevel {

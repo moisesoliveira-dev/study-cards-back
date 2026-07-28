@@ -5,6 +5,7 @@ import { SubjectController } from './subject/subject.controller';
 import { TopicController } from './topic/topic.controller';
 import { CardController } from './card/card.controller';
 import { CardLevelController } from './card-level/card-level.controller';
+import { DocumentNoteController } from './document-note/document-note.controller';
 import { FlowController } from './flow/flow.controller';
 import { PdfLibraryController } from './pdf-library/pdf-library.controller';
 import { HealthController } from './health/health.controller';
@@ -32,6 +33,13 @@ import { ListCardLevelsUseCase } from '../../application/card-level/list-card-le
 import { CreateCardLevelUseCase } from '../../application/card-level/create-card-level.use-case';
 import { UpdateCardLevelUseCase } from '../../application/card-level/update-card-level.use-case';
 import { DeleteCardLevelUseCase } from '../../application/card-level/delete-card-level.use-case';
+import {
+  AssertCardOwnershipService,
+  CreateDocumentNoteUseCase,
+  DeleteDocumentNoteUseCase,
+  ListDocumentNotesUseCase,
+  UpdateDocumentNoteUseCase,
+} from '../../application/document-note/document-note.use-cases';
 import { CreateFlowBoardUseCase } from '../../application/flow/create-flow-board.use-case';
 import { ListFlowBoardsUseCase } from '../../application/flow/list-flow-boards.use-case';
 import { GetFlowBoardUseCase } from '../../application/flow/get-flow-board.use-case';
@@ -48,6 +56,7 @@ import {
   TOPIC_REPOSITORY,
   CARD_REPOSITORY,
   CARD_LEVEL_REPOSITORY,
+  DOCUMENT_NOTE_REPOSITORY,
   USER_REPOSITORY,
   FLOW_BOARD_REPOSITORY,
 } from '../../domain/tokens';
@@ -55,6 +64,7 @@ import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { CardRepository } from '../../domain/card/card.repository';
 import type { CardLevelRepository } from '../../domain/card/card-level.repository';
+import type { DocumentNoteRepository } from '../../domain/document-note/document-note.repository';
 import { UserRepository } from '../../domain/user/user.repository';
 import { FlowBoardRepository } from '../../domain/flow/flow-board.repository';
 import { JwtService } from '@nestjs/jwt';
@@ -93,6 +103,7 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
     TopicController,
     CardController,
     CardLevelController,
+    DocumentNoteController,
     FlowController,
     PdfLibraryController,
   ],
@@ -283,6 +294,44 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
       useFactory: (levels: CardLevelRepository) =>
         new DeleteCardLevelUseCase(levels),
       inject: [CARD_LEVEL_REPOSITORY],
+    },
+    {
+      provide: AssertCardOwnershipService,
+      useFactory: (cards: CardRepository, subjects: SubjectRepository) =>
+        new AssertCardOwnershipService(cards, subjects),
+      inject: [CARD_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: ListDocumentNotesUseCase,
+      useFactory: (
+        notes: DocumentNoteRepository,
+        ownership: AssertCardOwnershipService,
+      ) => new ListDocumentNotesUseCase(notes, ownership),
+      inject: [DOCUMENT_NOTE_REPOSITORY, AssertCardOwnershipService],
+    },
+    {
+      provide: CreateDocumentNoteUseCase,
+      useFactory: (
+        notes: DocumentNoteRepository,
+        ownership: AssertCardOwnershipService,
+      ) => new CreateDocumentNoteUseCase(notes, ownership),
+      inject: [DOCUMENT_NOTE_REPOSITORY, AssertCardOwnershipService],
+    },
+    {
+      provide: UpdateDocumentNoteUseCase,
+      useFactory: (
+        notes: DocumentNoteRepository,
+        ownership: AssertCardOwnershipService,
+      ) => new UpdateDocumentNoteUseCase(notes, ownership),
+      inject: [DOCUMENT_NOTE_REPOSITORY, AssertCardOwnershipService],
+    },
+    {
+      provide: DeleteDocumentNoteUseCase,
+      useFactory: (
+        notes: DocumentNoteRepository,
+        ownership: AssertCardOwnershipService,
+      ) => new DeleteDocumentNoteUseCase(notes, ownership),
+      inject: [DOCUMENT_NOTE_REPOSITORY, AssertCardOwnershipService],
     },
     {
       provide: CreateFlowBoardUseCase,
