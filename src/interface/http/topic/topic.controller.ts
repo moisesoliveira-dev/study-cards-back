@@ -69,6 +69,7 @@ export class TopicController {
       parentId: topic.parentId,
       name: topic.name,
       description: topic.description,
+      color: topic.color,
       position: topic.position,
       createdAt: topic.createdAt,
       updatedAt: topic.updatedAt,

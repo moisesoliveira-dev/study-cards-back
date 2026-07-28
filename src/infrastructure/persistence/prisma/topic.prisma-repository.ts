@@ -16,6 +16,7 @@ export class TopicPrismaRepository implements TopicRepository {
       update: {
         name: data.name,
         description: data.description,
+        color: data.color,
         parentId: data.parentId,
         position: data.position,
         updatedAt: data.updatedAt,

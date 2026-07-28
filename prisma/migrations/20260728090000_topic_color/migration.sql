@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Topic" ADD COLUMN "color" TEXT NOT NULL DEFAULT '#BA7517';

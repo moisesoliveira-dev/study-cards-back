@@ -4,6 +4,7 @@ export interface TopicProps {
   parentId: string | null;
   name: string;
   description: string | null;
+  color: string;
   position: number;
   createdAt: Date;
   updatedAt: Date;
@@ -17,6 +18,7 @@ export class Topic {
     parentId?: string | null;
     name: string;
     description?: string | null;
+    color?: string;
     position?: number;
   }): Topic {
     const now = new Date();
@@ -27,6 +29,7 @@ export class Topic {
       parentId: input.parentId ?? null,
       name: input.name,
       description: input.description ?? null,
+      color: input.color ?? '#BA7517',
       position: input.position ?? 0,
       createdAt: now,
       updatedAt: now,
@@ -40,6 +43,7 @@ export class Topic {
   update(input: {
     name?: string;
     description?: string | null;
+    color?: string;
     position?: number;
     parentId?: string | null;
   }): void {
@@ -48,6 +52,9 @@ export class Topic {
     }
     if (input.description !== undefined) {
       this.props.description = input.description;
+    }
+    if (input.color !== undefined) {
+      this.props.color = input.color;
     }
     if (input.position !== undefined) {
       this.props.position = input.position;
@@ -76,6 +83,10 @@ export class Topic {
 
   get description(): string | null {
     return this.props.description;
+  }
+
+  get color(): string {
+    return this.props.color;
   }
 
   get position(): number {

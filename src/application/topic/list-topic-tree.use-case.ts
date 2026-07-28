@@ -9,6 +9,7 @@ export type TopicTreeNode = {
   parentId: string | null;
   name: string;
   description: string | null;
+  color: string;
   position: number;
   createdAt: Date;
   updatedAt: Date;
@@ -51,6 +52,7 @@ export class ListTopicTreeUseCase {
       parentId: topic.parentId,
       name: topic.name,
       description: topic.description,
+      color: topic.color,
       position: topic.position,
       createdAt: topic.createdAt,
       updatedAt: topic.updatedAt,

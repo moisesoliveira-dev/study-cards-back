@@ -25,6 +25,10 @@ export class CreateTopicDto {
   description?: string;
 
   @IsOptional()
+  @IsString()
+  color?: string;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   position?: number;
@@ -39,6 +43,10 @@ export class UpdateTopicDto {
   @IsOptional()
   @IsString()
   description?: string | null;
+
+  @IsOptional()
+  @IsString()
+  color?: string;
 
   @IsOptional()
   @IsInt()

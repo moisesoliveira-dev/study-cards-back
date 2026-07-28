@@ -16,6 +16,7 @@ export class CreateTopicUseCase {
       parentId?: string | null;
       name: string;
       description?: string | null;
+      color?: string;
       position?: number;
     },
   ): Promise<Topic> {
@@ -57,6 +58,7 @@ export class CreateTopicUseCase {
       parentId: input.parentId ?? null,
       name,
       description: input.description?.trim() || null,
+      color: input.color?.trim() || subject.color,
       position,
     });
 

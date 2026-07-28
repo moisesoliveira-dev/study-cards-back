@@ -15,6 +15,7 @@ export class UpdateTopicUseCase {
     input: {
       name?: string;
       description?: string | null;
+      color?: string;
       position?: number;
       parentId?: string | null;
     },
@@ -81,6 +82,7 @@ export class UpdateTopicUseCase {
         input.description === undefined
           ? undefined
           : input.description?.trim() || null,
+      color: input.color?.trim(),
       position,
       parentId: input.parentId !== undefined ? parentId : undefined,
     });
