@@ -205,8 +205,14 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
         cards: CardRepository,
         topics: TopicRepository,
         subjects: SubjectRepository,
-      ) => new CreateCardUseCase(cards, topics, subjects),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
+        levels: CardLevelRepository,
+      ) => new CreateCardUseCase(cards, topics, subjects, levels),
+      inject: [
+        CARD_REPOSITORY,
+        TOPIC_REPOSITORY,
+        SUBJECT_REPOSITORY,
+        CARD_LEVEL_REPOSITORY,
+      ],
     },
     {
       provide: ListCardsByTopicUseCase,

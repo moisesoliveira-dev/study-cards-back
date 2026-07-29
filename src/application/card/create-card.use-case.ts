@@ -1,5 +1,6 @@
 import { Card } from '../../domain/card/card.entity';
 import { CardRepository } from '../../domain/card/card.repository';
+import { CardLevelRepository } from '../../domain/card/card-level.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { DomainError } from '../../domain/shared/domain.error';
@@ -9,6 +10,7 @@ export class CreateCardUseCase {
     private readonly cards: CardRepository,
     private readonly topics: TopicRepository,
     private readonly subjects: SubjectRepository,
+    private readonly levels: CardLevelRepository,
   ) {}
 
   async execute(
@@ -64,13 +66,15 @@ export class CreateCardUseCase {
         ? Math.max(...siblings.map((c) => c.position)) + 1
         : 0);
 
+    const levelId = await this.resolveLevelId(input.levelId);
+
     const card = Card.create({
       subjectId,
       topicId,
       front: input.front,
       back: input.back,
       document: input.document,
-      levelId: input.levelId?.trim() || null,
+      levelId,
       icon: input.icon,
       color: input.color,
       tag: input.tag,
@@ -78,5 +82,22 @@ export class CreateCardUseCase {
     });
 
     return this.cards.save(card);
+  }
+
+  private async resolveLevelId(
+    levelId?: string | null,
+  ): Promise<string | null> {
+    const requested = levelId?.trim() || null;
+    if (requested) {
+      const found = await this.levels.findById(requested);
+      if (!found) {
+        throw new DomainError('CARD_LEVEL_NOT_FOUND', 'Nível não encontrado');
+      }
+      return found.id;
+    }
+    const basic = await this.levels.findBySlug('basic');
+    if (basic) return basic.id;
+    const all = await this.levels.findAll();
+    return all[0]?.id ?? null;
   }
 }
