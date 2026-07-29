@@ -67,11 +67,16 @@ export class MergeCardsUseCase {
     if (sources.length !== uniqueIds.length) {
       throw new DomainError('CARD_NOT_FOUND', 'One or more source cards not found');
     }
-    if (sources.some((s) => s.subjectId !== subjectId)) {
-      throw new DomainError(
-        'CARD_SUBJECT_MISMATCH',
-        'Todos os cards devem pertencer ao mesmo grupo',
+
+    // Fontes podem ser de outros grupos; só precisa ser do usuário.
+    for (const source of sources) {
+      const owned = await this.subjects.findByIdForUser(
+        source.subjectId,
+        userId,
       );
+      if (!owned) {
+        throw new DomainError('CARD_NOT_FOUND', 'One or more source cards not found');
+      }
     }
 
     const siblings = topicId
