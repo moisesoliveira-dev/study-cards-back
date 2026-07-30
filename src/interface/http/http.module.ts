@@ -5,6 +5,7 @@ import { SubjectController } from './subject/subject.controller';
 import { TopicController } from './topic/topic.controller';
 import { CardController } from './card/card.controller';
 import { CardLevelController } from './card-level/card-level.controller';
+import { ColorController } from './color/color.controller';
 import { DeckController } from './deck/deck.controller';
 import { DocumentNoteController } from './document-note/document-note.controller';
 import { FlowController } from './flow/flow.controller';
@@ -42,6 +43,10 @@ import { ListCardLevelsUseCase } from '../../application/card-level/list-card-le
 import { CreateCardLevelUseCase } from '../../application/card-level/create-card-level.use-case';
 import { UpdateCardLevelUseCase } from '../../application/card-level/update-card-level.use-case';
 import { DeleteCardLevelUseCase } from '../../application/card-level/delete-card-level.use-case';
+import { ListColorsUseCase } from '../../application/color/list-colors.use-case';
+import { CreateColorUseCase } from '../../application/color/create-color.use-case';
+import { UpdateColorUseCase } from '../../application/color/update-color.use-case';
+import { DeleteColorUseCase } from '../../application/color/delete-color.use-case';
 import {
   AssertCardOwnershipService,
   CreateDocumentNoteUseCase,
@@ -65,6 +70,7 @@ import {
   TOPIC_REPOSITORY,
   CARD_REPOSITORY,
   CARD_LEVEL_REPOSITORY,
+  COLOR_REPOSITORY,
   DECK_REPOSITORY,
   DOCUMENT_NOTE_REPOSITORY,
   USER_REPOSITORY,
@@ -74,6 +80,7 @@ import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { CardRepository } from '../../domain/card/card.repository';
 import type { CardLevelRepository } from '../../domain/card/card-level.repository';
+import type { CatalogColorRepository } from '../../domain/color/catalog-color.repository';
 import type { DeckRepository } from '../../domain/deck/deck.repository';
 import type { DocumentNoteRepository } from '../../domain/document-note/document-note.repository';
 import { UserRepository } from '../../domain/user/user.repository';
@@ -114,6 +121,7 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
     TopicController,
     CardController,
     CardLevelController,
+    ColorController,
     DeckController,
     DocumentNoteController,
     FlowController,
@@ -362,6 +370,30 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
       useFactory: (levels: CardLevelRepository) =>
         new DeleteCardLevelUseCase(levels),
       inject: [CARD_LEVEL_REPOSITORY],
+    },
+    {
+      provide: ListColorsUseCase,
+      useFactory: (colors: CatalogColorRepository) =>
+        new ListColorsUseCase(colors),
+      inject: [COLOR_REPOSITORY],
+    },
+    {
+      provide: CreateColorUseCase,
+      useFactory: (colors: CatalogColorRepository) =>
+        new CreateColorUseCase(colors),
+      inject: [COLOR_REPOSITORY],
+    },
+    {
+      provide: UpdateColorUseCase,
+      useFactory: (colors: CatalogColorRepository) =>
+        new UpdateColorUseCase(colors),
+      inject: [COLOR_REPOSITORY],
+    },
+    {
+      provide: DeleteColorUseCase,
+      useFactory: (colors: CatalogColorRepository) =>
+        new DeleteColorUseCase(colors),
+      inject: [COLOR_REPOSITORY],
     },
     {
       provide: AssertCardOwnershipService,
