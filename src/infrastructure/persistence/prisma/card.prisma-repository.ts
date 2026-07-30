@@ -30,6 +30,7 @@ export class CardPrismaRepository implements CardRepository {
       update: {
         subjectId: data.subjectId,
         topicId: data.topicId,
+        deckId: data.deckId,
         front: data.front,
         back: data.back,
         document: data.document,

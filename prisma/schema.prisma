@@ -78,6 +78,7 @@ model Subject {
   updatedAt   DateTime    @updatedAt
   topics      Topic[]
   cards       Card[]
+  decks       Deck[]
   flows       FlowBoard[]
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -118,16 +119,38 @@ model Topic {
   parent   Topic?  @relation("TopicTree", fields: [parentId], references: [id], onDelete: Cascade)
   children Topic[] @relation("TopicTree")
   cards    Card[]
+  decks    Deck[]
 
   @@index([subjectId])
   @@index([parentId])
   @@index([subjectId, parentId])
 }
 
+model Deck {
+  id          String   @id @default(cuid())
+  subjectId   String
+  topicId     String?
+  name        String
+  description String?
+  color       String   @default("#7F77DD")
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topic   Topic?  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  cards   Card[]
+
+  @@index([subjectId])
+  @@index([topicId])
+  @@index([subjectId, topicId])
+}
+
 model Card {
   id        String     @id @default(cuid())
   subjectId String
   topicId   String?
+  deckId    String?
   front     String
   back      String
   document  String?    @db.Text
@@ -142,6 +165,7 @@ model Card {
 
   subject Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   topic   Topic?         @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  deck    Deck?          @relation(fields: [deckId], references: [id], onDelete: SetNull)
   level   CardLevel?     @relation(fields: [levelId], references: [id], onDelete: SetNull)
   sources CardLink[]     @relation("MergedFrom")
   usedIn  CardLink[]     @relation("MergedInto")
@@ -149,6 +173,7 @@ model Card {
 
   @@index([subjectId])
   @@index([topicId])
+  @@index([deckId])
   @@index([subjectId, topicId])
   @@index([status])
   @@index([levelId])

@@ -144,4 +144,19 @@ export class MoveCardDto {
   @IsUUID()
   @IsOptional()
   topicId?: string | null;
+
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsUUID()
+  @IsOptional()
+  deckId?: string | null;
+
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsUUID()
+  @IsOptional()
+  beforeCardId?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  position?: number;
 }

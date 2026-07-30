@@ -5,6 +5,7 @@ import { SubjectController } from './subject/subject.controller';
 import { TopicController } from './topic/topic.controller';
 import { CardController } from './card/card.controller';
 import { CardLevelController } from './card-level/card-level.controller';
+import { DeckController } from './deck/deck.controller';
 import { DocumentNoteController } from './document-note/document-note.controller';
 import { FlowController } from './flow/flow.controller';
 import { PdfLibraryController } from './pdf-library/pdf-library.controller';
@@ -27,6 +28,12 @@ import { UpdateCardUseCase } from '../../application/card/update-card.use-case';
 import { DeleteCardUseCase } from '../../application/card/delete-card.use-case';
 import { MergeCardsUseCase } from '../../application/card/merge-cards.use-case';
 import { MoveCardUseCase } from '../../application/card/move-card.use-case';
+import {
+  CreateDeckUseCase,
+  DeleteDeckUseCase,
+  ListDecksUseCase,
+  UpdateDeckUseCase,
+} from '../../application/deck/deck.use-cases';
 import { GetCardUseCase } from '../../application/card/get-card.use-case';
 import { GetCardsByIdsUseCase } from '../../application/card/get-cards-by-ids.use-case';
 import { ListCardLevelsUseCase } from '../../application/card-level/list-card-levels.use-case';
@@ -56,6 +63,7 @@ import {
   TOPIC_REPOSITORY,
   CARD_REPOSITORY,
   CARD_LEVEL_REPOSITORY,
+  DECK_REPOSITORY,
   DOCUMENT_NOTE_REPOSITORY,
   USER_REPOSITORY,
   FLOW_BOARD_REPOSITORY,
@@ -64,6 +72,7 @@ import { SubjectRepository } from '../../domain/subject/subject.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { CardRepository } from '../../domain/card/card.repository';
 import type { CardLevelRepository } from '../../domain/card/card-level.repository';
+import type { DeckRepository } from '../../domain/deck/deck.repository';
 import type { DocumentNoteRepository } from '../../domain/document-note/document-note.repository';
 import { UserRepository } from '../../domain/user/user.repository';
 import { FlowBoardRepository } from '../../domain/flow/flow-board.repository';
@@ -103,6 +112,7 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
     TopicController,
     CardController,
     CardLevelController,
+    DeckController,
     DocumentNoteController,
     FlowController,
     PdfLibraryController,
@@ -262,8 +272,44 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
         cards: CardRepository,
         topics: TopicRepository,
         subjects: SubjectRepository,
-      ) => new MoveCardUseCase(cards, topics, subjects),
-      inject: [CARD_REPOSITORY, TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
+        decks: DeckRepository,
+      ) => new MoveCardUseCase(cards, topics, subjects, decks),
+      inject: [
+        CARD_REPOSITORY,
+        TOPIC_REPOSITORY,
+        SUBJECT_REPOSITORY,
+        DECK_REPOSITORY,
+      ],
+    },
+    {
+      provide: CreateDeckUseCase,
+      useFactory: (
+        decks: DeckRepository,
+        subjects: SubjectRepository,
+        topics: TopicRepository,
+      ) => new CreateDeckUseCase(decks, subjects, topics),
+      inject: [DECK_REPOSITORY, SUBJECT_REPOSITORY, TOPIC_REPOSITORY],
+    },
+    {
+      provide: ListDecksUseCase,
+      useFactory: (
+        decks: DeckRepository,
+        subjects: SubjectRepository,
+        topics: TopicRepository,
+      ) => new ListDecksUseCase(decks, subjects, topics),
+      inject: [DECK_REPOSITORY, SUBJECT_REPOSITORY, TOPIC_REPOSITORY],
+    },
+    {
+      provide: UpdateDeckUseCase,
+      useFactory: (decks: DeckRepository, subjects: SubjectRepository) =>
+        new UpdateDeckUseCase(decks, subjects),
+      inject: [DECK_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: DeleteDeckUseCase,
+      useFactory: (decks: DeckRepository, subjects: SubjectRepository) =>
+        new DeleteDeckUseCase(decks, subjects),
+      inject: [DECK_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
       provide: GetCardUseCase,

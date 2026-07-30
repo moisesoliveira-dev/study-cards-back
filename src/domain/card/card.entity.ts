@@ -29,6 +29,7 @@ export interface CardProps {
   id: string;
   subjectId: string;
   topicId: string | null;
+  deckId: string | null;
   front: string;
   back: string;
   document: string | null;
@@ -50,6 +51,7 @@ export class Card {
   static create(input: {
     subjectId: string;
     topicId?: string | null;
+    deckId?: string | null;
     front: string;
     back: string;
     document?: string | null;
@@ -76,6 +78,7 @@ export class Card {
       id: crypto.randomUUID(),
       subjectId: input.subjectId,
       topicId: input.topicId ?? null,
+      deckId: input.deckId ?? null,
       front: input.front.trim(),
       back: input.back.trim(),
       document: input.document?.trim() || null,
@@ -111,6 +114,7 @@ export class Card {
     status?: CardStatus;
     position?: number;
     topicId?: string | null;
+    deckId?: string | null;
   }): void {
     const nextFront = input.front ?? this.props.front;
     const nextBack = input.back ?? this.props.back;
@@ -134,6 +138,7 @@ export class Card {
     if (input.status !== undefined) this.props.status = input.status;
     if (input.position !== undefined) this.props.position = input.position;
     if (input.topicId !== undefined) this.props.topicId = input.topicId;
+    if (input.deckId !== undefined) this.props.deckId = input.deckId;
     this.props.updatedAt = new Date();
   }
 
@@ -159,6 +164,9 @@ export class Card {
   }
   get topicId() {
     return this.props.topicId;
+  }
+  get deckId() {
+    return this.props.deckId;
   }
   get front() {
     return this.props.front;

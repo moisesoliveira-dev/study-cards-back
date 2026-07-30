@@ -126,6 +126,7 @@ export class CardController {
       id: card.id,
       subjectId: card.subjectId,
       topicId: card.topicId,
+      deckId: card.deckId,
       front: card.front,
       back: card.back,
       document: card.document,
