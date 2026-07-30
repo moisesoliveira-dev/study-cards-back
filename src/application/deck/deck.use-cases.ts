@@ -159,3 +159,61 @@ export class DeleteDeckUseCase {
     await this.decks.delete(id);
   }
 }
+
+export class MoveDeckUseCase {
+  constructor(
+    private readonly decks: DeckRepository,
+    private readonly subjects: SubjectRepository,
+  ) {}
+
+  async execute(
+    userId: string,
+    id: string,
+    input: {
+      beforeDeckId?: string | null;
+      position?: number;
+    },
+  ): Promise<Deck> {
+    const deck = await this.decks.findById(id);
+    if (!deck) {
+      throw new DomainError('DECK_NOT_FOUND', 'Deck not found');
+    }
+    const subject = await this.subjects.findByIdForUser(
+      deck.subjectId,
+      userId,
+    );
+    if (!subject) {
+      throw new DomainError('DECK_NOT_FOUND', 'Deck not found');
+    }
+
+    const siblings = (
+      await this.decks.findByLocation(deck.subjectId, deck.topicId)
+    ).filter((d) => d.id !== deck.id);
+
+    let position = input.position;
+    if (position === undefined && input.beforeDeckId) {
+      const before = siblings.find((d) => d.id === input.beforeDeckId);
+      position = before ? before.position : undefined;
+    }
+    if (position === undefined) {
+      position = siblings.length
+        ? Math.max(...siblings.map((d) => d.position)) + 1
+        : 0;
+    }
+
+    if (input.beforeDeckId) {
+      const ordered = [...siblings].sort((a, b) => a.position - b.position);
+      let next = position;
+      for (const sibling of ordered) {
+        if (sibling.position >= position) {
+          next += 1;
+          sibling.update({ position: next });
+          await this.decks.save(sibling);
+        }
+      }
+    }
+
+    deck.update({ position });
+    return this.decks.save(deck);
+  }
+}

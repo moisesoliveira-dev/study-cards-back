@@ -23,6 +23,7 @@ import {
   CreateDeckUseCase,
   DeleteDeckUseCase,
   ListDecksUseCase,
+  MoveDeckUseCase,
   UpdateDeckUseCase,
 } from '../../../application/deck/deck.use-cases';
 import { Deck } from '../../../domain/deck/deck.entity';
@@ -71,6 +72,17 @@ class UpdateDeckDto {
   position?: number;
 }
 
+class MoveDeckDto {
+  @IsOptional()
+  @IsString()
+  beforeDeckId?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  position?: number;
+}
+
 @Controller('decks')
 @UseGuards(JwtAuthGuard)
 export class DeckController {
@@ -83,6 +95,8 @@ export class DeckController {
     private readonly updateDeck: UpdateDeckUseCase,
     @Inject(DeleteDeckUseCase)
     private readonly deleteDeck: DeleteDeckUseCase,
+    @Inject(MoveDeckUseCase)
+    private readonly moveDeck: MoveDeckUseCase,
   ) {}
 
   @Get()
@@ -101,6 +115,15 @@ export class DeckController {
   @Post()
   async create(@CurrentUser() user: AuthUser, @Body() dto: CreateDeckDto) {
     return this.toResponse(await this.createDeck.execute(user.id, dto));
+  }
+
+  @Post(':id/move')
+  async move(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: MoveDeckDto,
+  ) {
+    return this.toResponse(await this.moveDeck.execute(user.id, id, dto));
   }
 
   @Patch(':id')

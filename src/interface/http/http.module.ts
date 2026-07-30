@@ -32,6 +32,7 @@ import {
   CreateDeckUseCase,
   DeleteDeckUseCase,
   ListDecksUseCase,
+  MoveDeckUseCase,
   UpdateDeckUseCase,
 } from '../../application/deck/deck.use-cases';
 import { GetCardUseCase } from '../../application/card/get-card.use-case';
@@ -309,6 +310,12 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
       provide: DeleteDeckUseCase,
       useFactory: (decks: DeckRepository, subjects: SubjectRepository) =>
         new DeleteDeckUseCase(decks, subjects),
+      inject: [DECK_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
+      provide: MoveDeckUseCase,
+      useFactory: (decks: DeckRepository, subjects: SubjectRepository) =>
+        new MoveDeckUseCase(decks, subjects),
       inject: [DECK_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
