@@ -3,6 +3,7 @@ import { CardRepository } from '../../domain/card/card.repository';
 import { CardLevelRepository } from '../../domain/card/card-level.repository';
 import { TopicRepository } from '../../domain/topic/topic.repository';
 import { SubjectRepository } from '../../domain/subject/subject.repository';
+import { DeckRepository } from '../../domain/deck/deck.repository';
 import { DomainError } from '../../domain/shared/domain.error';
 
 export class CreateCardUseCase {
@@ -11,6 +12,7 @@ export class CreateCardUseCase {
     private readonly topics: TopicRepository,
     private readonly subjects: SubjectRepository,
     private readonly levels: CardLevelRepository,
+    private readonly decks: DeckRepository,
   ) {}
 
   async execute(
@@ -18,6 +20,7 @@ export class CreateCardUseCase {
     input: {
       subjectId?: string;
       topicId?: string | null;
+      deckId?: string | null;
       front: string;
       back: string;
       document?: string | null;
@@ -30,6 +33,7 @@ export class CreateCardUseCase {
   ): Promise<Card> {
     let subjectId = input.subjectId?.trim() || '';
     const topicId = input.topicId?.trim() || null;
+    let deckId = input.deckId?.trim() || null;
 
     if (topicId) {
       const topic = await this.topics.findById(topicId);
@@ -57,9 +61,23 @@ export class CreateCardUseCase {
       }
     }
 
-    const siblings = topicId
-      ? await this.cards.findByTopicId(topicId)
-      : await this.cards.findRootBySubjectId(subjectId);
+    if (deckId) {
+      const deck = await this.decks.findById(deckId);
+      if (
+        !deck ||
+        deck.subjectId !== subjectId ||
+        deck.topicId !== topicId
+      ) {
+        throw new DomainError('DECK_NOT_FOUND', 'Deck de destino inválido');
+      }
+    }
+
+    const siblings = (
+      topicId
+        ? await this.cards.findByTopicId(topicId)
+        : await this.cards.findRootBySubjectId(subjectId)
+    ).filter((c) => c.deckId === deckId);
+
     const position =
       input.position ??
       (siblings.length
@@ -71,6 +89,7 @@ export class CreateCardUseCase {
     const card = Card.create({
       subjectId,
       topicId,
+      deckId,
       front: input.front,
       back: input.back,
       document: input.document,

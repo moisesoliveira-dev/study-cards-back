@@ -21,6 +21,7 @@ import { CreateTopicUseCase } from '../../application/topic/create-topic.use-cas
 import { ListTopicTreeUseCase } from '../../application/topic/list-topic-tree.use-case';
 import { UpdateTopicUseCase } from '../../application/topic/update-topic.use-case';
 import { DeleteTopicUseCase } from '../../application/topic/delete-topic.use-case';
+import { MoveTopicUseCase } from '../../application/topic/move-topic.use-case';
 import { CreateCardUseCase } from '../../application/card/create-card.use-case';
 import { ListCardsByTopicUseCase } from '../../application/card/list-cards-by-topic.use-case';
 import { GetStudyDeckUseCase } from '../../application/card/get-study-deck.use-case';
@@ -211,18 +212,26 @@ function createTokenSigner(jwt: JwtService): TokenSigner {
       inject: [TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
     },
     {
+      provide: MoveTopicUseCase,
+      useFactory: (topics: TopicRepository, subjects: SubjectRepository) =>
+        new MoveTopicUseCase(topics, subjects),
+      inject: [TOPIC_REPOSITORY, SUBJECT_REPOSITORY],
+    },
+    {
       provide: CreateCardUseCase,
       useFactory: (
         cards: CardRepository,
         topics: TopicRepository,
         subjects: SubjectRepository,
         levels: CardLevelRepository,
-      ) => new CreateCardUseCase(cards, topics, subjects, levels),
+        decks: DeckRepository,
+      ) => new CreateCardUseCase(cards, topics, subjects, levels, decks),
       inject: [
         CARD_REPOSITORY,
         TOPIC_REPOSITORY,
         SUBJECT_REPOSITORY,
         CARD_LEVEL_REPOSITORY,
+        DECK_REPOSITORY,
       ],
     },
     {

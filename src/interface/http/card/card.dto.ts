@@ -50,6 +50,10 @@ export class CreateCardDto {
   document?: string | null;
 
   @IsOptional()
+  @IsString()
+  deckId?: string | null;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   position?: number;
@@ -137,6 +141,10 @@ export class MergeCardsDto {
   @IsOptional()
   @IsString()
   document?: string | null;
+
+  @IsOptional()
+  @IsString()
+  deckId?: string | null;
 }
 
 export class MoveCardDto {
