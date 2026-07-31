@@ -2,18 +2,19 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  IsUUID,
   Min,
   MinLength,
   ValidateIf,
 } from 'class-validator';
 
 export class CreateTopicDto {
-  @IsUUID()
+  @IsString()
+  @MinLength(1)
   subjectId!: string;
 
   @ValidateIf((_, value) => value !== null && value !== undefined)
-  @IsUUID()
+  @IsString()
+  @MinLength(1)
   parentId?: string | null;
 
   @IsString()
@@ -54,7 +55,8 @@ export class UpdateTopicDto {
   position?: number;
 
   @ValidateIf((_, value) => value !== null && value !== undefined)
-  @IsUUID()
+  @IsString()
+  @MinLength(1)
   @IsOptional()
   parentId?: string | null;
 }

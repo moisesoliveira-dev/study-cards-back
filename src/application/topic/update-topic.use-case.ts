@@ -55,10 +55,11 @@ export class UpdateTopicUseCase {
           );
         }
         const descendants = await this.topics.findDescendantIds(id);
-        if (descendants.includes(parentId)) {
+        // findDescendantIds inclui a própria pasta; ciclo = pai é subpasta dela
+        if (descendants.some((d) => d === parentId && d !== id)) {
           throw new DomainError(
             'TOPIC_PARENT_CYCLE',
-            'Não dá para mover uma pasta para dentro dela mesma',
+            'Não dá para mover uma pasta para dentro de uma subpasta dela',
           );
         }
       }
