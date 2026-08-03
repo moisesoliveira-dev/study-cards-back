@@ -43,7 +43,12 @@ export class ListTopicTreeUseCase {
     }
 
     for (const list of byParent.values()) {
-      list.sort((a, b) => a.position - b.position);
+      list.sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        }),
+      );
     }
 
     const toNode = (topic: Topic): TopicTreeNode => ({
