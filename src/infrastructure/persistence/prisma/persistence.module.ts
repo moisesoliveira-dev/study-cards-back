@@ -5,6 +5,7 @@ import { TopicPrismaRepository } from './topic.prisma-repository';
 import { CardPrismaRepository } from './card.prisma-repository';
 import { CardLevelPrismaRepository } from './card-level.prisma-repository';
 import { CatalogColorPrismaRepository } from './color.prisma-repository';
+import { CardTagPrismaRepository } from './card-tag.prisma-repository';
 import { DeckPrismaRepository } from './deck.prisma-repository';
 import { DocumentNotePrismaRepository } from './document-note.prisma-repository';
 import { UserPrismaRepository } from './user.prisma-repository';
@@ -14,6 +15,7 @@ import {
   TOPIC_REPOSITORY,
   CARD_REPOSITORY,
   CARD_LEVEL_REPOSITORY,
+  CARD_TAG_REPOSITORY,
   COLOR_REPOSITORY,
   DECK_REPOSITORY,
   DOCUMENT_NOTE_REPOSITORY,
@@ -30,6 +32,7 @@ import {
     { provide: TOPIC_REPOSITORY, useClass: TopicPrismaRepository },
     { provide: CARD_REPOSITORY, useClass: CardPrismaRepository },
     { provide: CARD_LEVEL_REPOSITORY, useClass: CardLevelPrismaRepository },
+    { provide: CARD_TAG_REPOSITORY, useClass: CardTagPrismaRepository },
     { provide: COLOR_REPOSITORY, useClass: CatalogColorPrismaRepository },
     { provide: DECK_REPOSITORY, useClass: DeckPrismaRepository },
     { provide: DOCUMENT_NOTE_REPOSITORY, useClass: DocumentNotePrismaRepository },
@@ -42,6 +45,7 @@ import {
     TOPIC_REPOSITORY,
     CARD_REPOSITORY,
     CARD_LEVEL_REPOSITORY,
+    CARD_TAG_REPOSITORY,
     COLOR_REPOSITORY,
     DECK_REPOSITORY,
     DOCUMENT_NOTE_REPOSITORY,

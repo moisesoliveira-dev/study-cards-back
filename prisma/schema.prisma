@@ -216,9 +216,25 @@ model Color {
   position    Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  tags        CardTag[]
 
   @@unique([hex])
   @@index([position])
+}
+
+model CardTag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  colorId     String
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  color Color @relation(fields: [colorId], references: [id], onDelete: Restrict)
+
+  @@index([position])
+  @@index([colorId])
 }
 
 model CardLink {
